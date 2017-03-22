@@ -27,6 +27,7 @@
     "ng2-fullpage": "^2.1.0",
     "rxjs": "^5.0.1",
     "ts-helpers": "^1.1.1",
+    "webmidi": "^2.0.0-rc.5",
     "zone.js": "^0.7.2"
   },
   "devDependencies": {

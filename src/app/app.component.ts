@@ -1,5 +1,6 @@
-import { Component, Input, Output, ViewEncapsulation } from '@angular/core';
+import { Component, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { MnFullpageOptions, MnFullpageService } from 'ng2-fullpage';
+import { PipelineService } from './services/pipeline/pipeline.service';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +11,7 @@ import { MnFullpageOptions, MnFullpageService } from 'ng2-fullpage';
   ],
   template: require('./app.component.html')
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
 
   @Input() public options: MnFullpageOptions = new MnFullpageOptions({
     controlArrows: false,
@@ -43,7 +44,9 @@ export class AppComponent {
     service: require('raw!./templates/service.template.txt'),
   };
 
-  constructor(private fullpageService: MnFullpageService) {
-  }
+  constructor(private pipelineService: PipelineService) { }
 
+  ngOnInit() {
+    this.pipelineService.begin();
+  }
 }
