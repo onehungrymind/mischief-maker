@@ -24,9 +24,9 @@ export class PipelineService {
     this.audioContext = window['theAudioContext'];
   }
 
-  begin() {
+  begin(inputId) {
     // setup inputs
-    this.midiInputService.setup(this.synthStream$);
+    this.midiInputService.setup(this.synthStream$, inputId);
 
     // setup outputs
     this.audioOutputService.setup(this.audioContext, this.synthStream$);

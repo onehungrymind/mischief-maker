@@ -47,6 +47,5 @@ export class AppComponent implements OnInit {
   constructor(private pipelineService: PipelineService) { }
 
   ngOnInit() {
-    this.pipelineService.begin();
   }
 }

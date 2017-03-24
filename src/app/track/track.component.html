@@ -1,0 +1,4 @@
+<select name="controller" id="controller" (change)="connectSource($event)">
+  <option value="">Select</option>
+  <option [value]="input.id" *ngFor="let input of midiInputs | async">{{input.manufacturer}}</option>
+</select>

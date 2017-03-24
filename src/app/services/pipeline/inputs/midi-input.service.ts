@@ -22,33 +22,31 @@ export class MidiInputService {
     84: 'C8', 85: 'D#8', 86: 'F8', 87: 'F#8', 88: 'G8', 89: 'A#8',
   };
 
-  setup(synthStream$: Subject<SynthMessage>) {
-    let self = this;
+  getInputs() {
+    if ('navigator' in window && 'requestMIDIAccess' in window['navigator']) {
+      return window.navigator['requestMIDIAccess']()
+        .then((access) => Array.from(access.inputs).map(item => item[1]))
+        .then(this.cacheInputs.bind(this))
+    } else {
+      return Promise.reject(new Error('Could not get MIDI controllers'));
+    }
+  }
 
+  cacheInputs(inputs) {
+    this.inputs = inputs;
+    return inputs;
+  }
+
+  setup(synthStream$: Subject<SynthMessage>, inputId: any) {
     // hold ref to synth note and control stream
-    self.synthStream$ = synthStream$;
+    this.synthStream$ = synthStream$;
 
     // request MIDI access
-    if ('navigator' in window && 'requestMIDIAccess' in window['navigator']) {
-      try {
-        window.navigator['requestMIDIAccess']().then(
-          (access) => {
-            let loopCondition = access.inputs.keys();
-            while (true) {
-              let result = loopCondition.next();
-              if (result.done === true) {
-                break;
-              }
-              // otherwise let's add the input we found
-              self.inputs.push({key: result.value, value: access.inputs.get(result.value)});
-            }
-            // TODO - for now, use only first input, later add dropdown to control panel
-            // and connect the one selected on demand
-            self.connectDefaultInput();
-          });
-      } catch (e) {
-        console.log('MIDI Access denied, no stairway :(');
-      }
+    if (this.inputs && this.inputs.length > 0) {
+      let selectedInput = this.inputs.find(input => input.id === inputId);
+      this.connect(selectedInput);
+    } else {
+      console.log('no midi inputs');
     }
   }
 
@@ -63,7 +61,7 @@ export class MidiInputService {
   // does the heavy lifting
   private connect(input) {
     let self = this;
-    input.value.open()
+    input.open()
       .then(
         (channelInputStream$: any) => {
           console.log('channelInputStream$', channelInputStream$);

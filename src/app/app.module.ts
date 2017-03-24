@@ -13,13 +13,15 @@ import { AudioOutputService, MidiInputService, PipelineService, SynthesisService
 
 import { PianoKeyboardComponent } from './keyboard';
 import { MnFullpageDirective, MnFullpageService } from 'ng2-fullpage';
+import { TrackComponent } from './track/track.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     MnFullpageDirective,
     PianoKeyboardComponent,
-    ControlPanelComponent
+    ControlPanelComponent,
+    TrackComponent
   ],
   imports: [
     BrowserModule,
