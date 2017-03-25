@@ -26,7 +26,7 @@ export class MidiInputService {
     if ('navigator' in window && 'requestMIDIAccess' in window['navigator']) {
       return window.navigator['requestMIDIAccess']()
         .then((access) => Array.from(access.inputs).map(item => item[1]))
-        .then(this.cacheInputs.bind(this))
+        .then(this.cacheInputs.bind(this));
     } else {
       return Promise.reject(new Error('Could not get MIDI controllers'));
     }

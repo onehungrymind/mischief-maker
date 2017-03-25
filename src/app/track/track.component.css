@@ -1,0 +1,11 @@
+pre {
+  text-align: center;
+}
+pre span {
+  display: inline-block;
+  text-align: left;
+}
+
+pre div:not(:first-child) span {
+  margin-top: -50px;
+}
