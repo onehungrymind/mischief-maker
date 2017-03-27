@@ -11,12 +11,7 @@ export class PipelineService {
   private audioContext: AudioContext;
 
   // allow other objects to hook into the service and send messages
-  private _synthStream$ = new Subject<SynthMessage>();
-
-  // only provide accessor, can't replace stream
-  get synthStream$() {
-    return this._synthStream$;
-  }
+  synthStream$ = new Subject<SynthMessage>();
 
   constructor(private midiInputService: MidiInputService,
               private synthesisService: SynthesisService,
@@ -26,7 +21,7 @@ export class PipelineService {
 
   begin(inputId) {
     // setup inputs
-    this.midiInputService.setup(this.synthStream$, inputId);
+    this.midiInputService.setup(this.synthStream$);
 
     // setup outputs
     this.audioOutputService.setup(this.audioContext, this.synthStream$);

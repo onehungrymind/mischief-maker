@@ -1,4 +1,5 @@
 import 'rxjs/add/operator/filter';
+import { log } from 'util';
 
 export class SynthNote {
   private static noteMappings = {
@@ -42,7 +43,15 @@ export class SynthNote {
 
   constructor(note: string, waveform: string, private audioContext: AudioContext, private audioBusNode: AudioNode) {
     this.note = note;
-    this.frequency = SynthNote.noteMappings[note];
+    // this.frequency = SynthNote.noteMappings[note];
+    // JG ~ "note" is actually coming in as a frequency number, not a string value such as "G2"
+    this.frequency = parseFloat(note);
+    
+    console.log('NOTE', note);
+    console.log('FREQUENCY', this.frequency);
+    
+    
+    
     this.oscillator = audioContext.createOscillator();
     this.oscillator.frequency.value = this.frequency;
     this.gainNode = audioContext.createGain();

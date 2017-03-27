@@ -16,6 +16,7 @@ import { AudioOutputService, MidiInputService, PipelineService, SynthesisService
 import { PianoKeyboardComponent } from './keyboard';
 import { MnFullpageDirective, MnFullpageService } from 'ng2-fullpage';
 import { TrackComponent } from './track/track.component';
+import { SynthStreamWrapper } from './services/synth-stream-wrapper';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import { TrackComponent } from './track/track.component';
     MidiInputService,
     AudioOutputService,
     SynthesisService,
-    PipelineService
+    PipelineService,
+    SynthStreamWrapper
   ],
   bootstrap: [AppComponent]
 })

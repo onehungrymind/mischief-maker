@@ -1,11 +1,12 @@
 
-<!--
 <select name="controller" id="controller" (change)="connectSource($event)">
   <option value="">Select</option>
-  <option [value]="input.id" *ngFor="let input of midiInputs | async">{{input.name}}</option>
+  <option [value]="input.id" *ngFor="let input of midiInputs">{{input.name}}</option>
 </select>
+
 <h1>{{currentNote}}</h1>
 
+<!--
 <canvas width="960" height="500"></canvas>
 
 <div id="waveform"></div>

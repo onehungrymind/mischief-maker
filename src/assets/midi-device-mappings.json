@@ -1,0 +1,12 @@
+[
+  {
+    "key": "name",
+    "value": "V25 Out",
+    "type": "midi"
+  },
+  {
+    "key": "name",
+    "value": "V25 EDITOR Out",
+    "type": "midi"
+  }
+]

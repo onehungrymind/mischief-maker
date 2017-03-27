@@ -4,6 +4,7 @@ import { D3, D3Service, Timer } from 'd3-ng2-service';
 import { MidiInputService } from '../services/pipeline/inputs/midi-input.service';
 import { PipelineService } from '../services/pipeline/pipeline.service';
 import { DomSanitizer } from '@angular/platform-browser';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
   selector: 'app-track',
@@ -13,7 +14,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 export class TrackComponent implements OnInit {
   midiInputs: Array<any>;
   notes: Array<any> = [];
-  currentNote: string;
+  currentNote;
 
   audioContext: AudioContext = window['theAudioContext'];
   audioInput = null;
@@ -52,6 +53,26 @@ export class TrackComponent implements OnInit {
     // this.doSomethingMicrophony();
     this.doSomethingVisual();
   }
+
+  private doSomethingLoud() {
+    this.midiInputService.elaborateDevices()
+      .subscribe(midiInputs => this.midiInputs = midiInputs);
+
+    this.pipelineService.synthStream$
+      .subscribe(note => {
+        this.currentNote = note['note'];
+        // this.notes.push(note);
+        // this.cd.detectChanges();
+      });
+  }
+
+  private connectSource(event) {
+    this.pipelineService.begin(event.target.value);
+
+    let device = this.midiInputs.find((input: any) => input.id === event.target.value);
+    this.midiInputService.beginMidiInput(device);
+  }
+
 
   doSomethingVisual() {
     let mediaConstraints: any = {
@@ -152,6 +173,8 @@ export class TrackComponent implements OnInit {
   }
 
   gotStream(stream) {
+    console.log('STREAM', stream);
+
     this.inputPoint = this.audioContext.createGain();
 
     // Create an AudioNode from the stream.
@@ -477,17 +500,4 @@ export class TrackComponent implements OnInit {
     microphone.start();
   }
 
-  private doSomethingLoud() {
-    this.midiInputs = this.midiInputService.getInputs();
-    this.pipelineService.synthStream$
-      .subscribe(note => {
-        this.currentNote = note['note'];
-        // this.notes.push(note);
-        // this.cd.detectChanges();
-      });
-  }
-
-  private connectSource(event) {
-    this.pipelineService.begin(event.target.value);
-  }
 }

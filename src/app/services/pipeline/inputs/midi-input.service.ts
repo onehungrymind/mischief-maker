@@ -1,3 +1,108 @@
+import { Observable, ReplaySubject, Subject } from 'rxjs';
+import { Inject, Injectable, NgZone } from '@angular/core';
+
+import {
+  SynthNoteOff, SynthNoteOn,
+  VolumeChange, SynthMessage,
+  WaveformChange, TriggerSample
+} from '../../../models';
+import { Http } from '@angular/http';
+import { SynthStreamWrapper } from '../../synth-stream-wrapper';
+
+declare const navigator: any;
+
+export enum MidiServiceStates { ACTIVE, INACTIVE }
+
+@Injectable()
+export class MidiInputService {
+
+  private synthStream$: Subject<SynthMessage>;
+  state: MidiServiceStates = MidiServiceStates.INACTIVE;
+
+  private subscriptions: any[] = [];
+
+  constructor(private zone: NgZone, private http: Http) {
+    console.log('Synth stream created');
+  }
+
+  setup(synthStream$: Subject<SynthMessage>) {
+    this.synthStream$ = synthStream$;
+  }
+
+  // reference to pipeline's synth service stream
+  beginMidiInput(device) {
+    if (this.state !== MidiServiceStates.INACTIVE) {
+      console.log('Already listening for input. Stop the service first.');
+      return;
+    }
+
+    this.open(device);
+    this.state = MidiServiceStates.ACTIVE;
+  }
+
+  elaborateDevices(): Observable<any[]> {
+    return Observable.fromPromise(navigator.requestMIDIAccess())
+      .map((access: any) => {
+        // THIS MAKES ME SO MAD ~LR
+        const iterator = access.inputs.values();
+        const devices = [];
+        while (true) {
+          const next = iterator.next();
+          if (next.done) {
+            break;
+          }
+          devices.push(next.value);
+        }
+        return devices;
+      });
+  }
+
+  private open(device) {
+    console.log(`opening connection to ${device.name}`);
+    device.open()
+      .then((subscription) => {
+        this.startMusicNoteMessageDelivery(device, subscription);
+      });
+  }
+
+  private startMusicNoteMessageDelivery(device, subscription) {
+    console.log(`subscribing to midi messages from ${device.name}`);
+    subscription.onmidimessage = (data) => {
+      this.processMusicNoteMessage(data);
+    };
+    this.subscriptions.push(subscription);
+  }
+
+  endMidiInput() {
+    if (this.state === MidiServiceStates.INACTIVE) {
+      console.log('Midi Service not active. Only call this to stop an active state');
+      return;
+    }
+    this.subscriptions.forEach((device) => {
+      console.dir(device);
+      if (device.state === 'connected') {
+        device.close();
+      }
+    });
+    this.subscriptions.length = 0;
+    this.state = MidiServiceStates.INACTIVE;
+    console.log('devices disconnected, MIDI input disabled.');
+  }
+
+  private processMusicNoteMessage(midiChannelMessage: any) {
+    console.log(`recieved: ${midiChannelMessage.data[0]}: ${midiChannelMessage.data[1]}: ${midiChannelMessage.data[2]}`);
+
+    if (midiChannelMessage.data[2] === 0) {
+      this.synthStream$.next(new SynthNoteOff(midiChannelMessage.data[1]));
+    } else {
+      this.synthStream$.next(new SynthNoteOn(midiChannelMessage.data[1]));
+    }
+  }
+}
+
+
+
+/*
 import { Subject } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { SynthMessage, SynthNoteOn } from '../../../models/synth-note-message';
@@ -106,3 +211,4 @@ export class MidiInputService {
     return response;
   }
 }
+*/

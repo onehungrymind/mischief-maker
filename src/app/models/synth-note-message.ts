@@ -1,26 +1,19 @@
 export class SynthMessage {
-  protected _action: string;
+  readonly action: string;
 
   constructor(action) {
-    this._action = action;
-  }
-
-  get action(): string {
-    return this._action;
+    this.action = action;
   }
 }
 
 export class SynthNoteMessage extends SynthMessage {
-  protected _note: string;
+  readonly note: string;
 
   constructor(note, action) {
     super(action);
-    this._note = note;
+    this.note = note;
   }
 
-  get note(): string {
-    return this._note;
-  }
 }
 
 export class SynthNoteOn extends SynthNoteMessage {
@@ -37,10 +30,11 @@ export class SynthNoteOff extends SynthNoteMessage {
 
 export class TriggerSample extends SynthMessage {
   public instrument: string;
-
-  constructor(instrument: string) {
+  public velocity: number;
+  constructor(instrument: string, velocity: number) {
     super('SAMPLE!');
     this.instrument = instrument;
+    this.velocity = velocity;
   }
 }
 
@@ -50,12 +44,10 @@ export class ClockTick extends SynthMessage {
   }
 }
 
-export class SynthControlMessage extends SynthMessage {
-}
+export class SynthControlMessage extends SynthMessage { }
 
 export class VolumeChange extends SynthControlMessage {
   public level: number;
-
   constructor(level: number) {
     super('VOLUME');
     // hack due to arduino stupidity kenny
@@ -65,7 +57,6 @@ export class VolumeChange extends SynthControlMessage {
 
 export class WaveformChange extends SynthControlMessage {
   public waveForm: string;
-
   constructor(public rawValue: number) {
     super('WAVEFORM');
     switch (rawValue) {
