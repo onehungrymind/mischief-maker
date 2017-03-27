@@ -14,6 +14,20 @@ export class TrackComponent implements OnInit {
   notes: Array<any> = [];
   currentNote: string;
 
+  audioContext: AudioContext = window['theAudioContext'];
+  audioInput = null;
+  realAudioInput = null;
+  inputPoint = null;
+  audioRecorder = null;
+  rafID = null;
+  analyserContext = null;
+  analyserNode;
+  canvasWidth;
+  canvasHeight;
+  zeroGain;
+  recIndex = 0;
+
+
   private d3: D3;
   private parentNativeElement: any;
 
@@ -31,58 +45,191 @@ export class TrackComponent implements OnInit {
     // this.doSomethingViolent();
     // this.doSomethingPretty();
     // this.doSomethingRandom();
-    this.doSomethingMicrophony();
+    // this.doSomethingMicrophony();
+    this.doSomethingVizzy();
+    
+    console.log('-------------->', this.audioContext);
   }
 
-  doSomethingWavy() {
-    let wavesurfer = window['WaveSurfer'].create({
-      container: '#waveform',
-      waveColor: 'violet',
-      progressColor: 'purple'
-    });
+  doSomethingVizzy() {
+    let mediaConstraints: any = {
+      audio: {
+        mandatory: {
+          googEchoCancellation: false,
+          googAutoGainControl: false,
+          googNoiseSuppression: false,
+          googHighpassFilter: false
+        },
+        optional: []
+      }
+    };
 
-    wavesurfer.load('assets/audio/TellMeHow.mp3');
-  }
 
-  doSomethingMicrophony() {
-    let wavesurfer = window['WaveSurfer'].create({
-      container: '#waveform',
-      waveColor: 'violet'
-    });
-
-    let microphone = Object.create(window['WaveSurfer'].Microphone);
-
-    microphone.init({
-      wavesurfer: wavesurfer
-    });
-
-    microphone.on('deviceReady', function(stream) {
-      console.log('Device ready!', stream);
-    });
-    microphone.on('deviceError', function(code) {
-      console.warn('Device error: ' + code);
-    });
-
-    // pause rendering
-    //microphone.pause();
-
-    // resume rendering
-    //microphone.play();
-
-    // stop visualization and disconnect microphone
-    //microphone.stopDevice();
-
-    // same as stopDevice() but also clears the wavesurfer canvas
-    //microphone.stop();
-
-    // destroy the plugin
-    //microphone.destroy();
-
-    microphone.start();
+    navigator.getUserMedia(
+      mediaConstraints, this.gotStream.bind(this), e => {
+        alert('Error getting audio');
+        console.log(e);
+      });
   }
 
 
-  doSomethingRandom() {
+  saveAudio() {
+    this.audioRecorder.exportWAV(this.doneEncoding);
+    // could get mono instead by saying
+    // audioRecorder.exportMonoWAV( doneEncoding );
+  }
+
+  gotBuffers(buffers) {
+    let canvas: any = document.getElementById('wavedisplay');
+
+    this.drawBuffer(canvas.width, canvas.height, canvas.getContext('2d'), buffers[0]);
+
+    // the ONLY time gotBuffers is called is right after a new recording is completed - 
+    // so here's where we should set up the download.
+    this.audioRecorder.exportWAV(this.doneEncoding);
+  }
+
+  doneEncoding(blob) {
+    // Recorder.setupDownload(blob, 'myRecording' + ((this.recIndex < 10) ? '0' : '') + this.recIndex + '.wav');
+    // this.recIndex++;
+  }
+
+  toggleRecording(e) {
+    if (e.classList.contains('recording')) {
+      // stop recording
+      this.audioRecorder.stop();
+      e.classList.remove('recording');
+      this.audioRecorder.getBuffers(this.gotBuffers);
+    } else {
+      // start recording
+      if (!this.audioRecorder) {
+        return;
+      }
+      e.classList.add('recording');
+      this.audioRecorder.clear();
+      this.audioRecorder.record();
+    }
+  }
+
+  convertToMono(input) {
+    let splitter = this.audioContext.createChannelSplitter(2);
+    let merger = this.audioContext.createChannelMerger(2);
+
+    input.connect(splitter);
+    splitter.connect(merger, 0, 0);
+    splitter.connect(merger, 0, 1);
+    return merger;
+  }
+
+  cancelAnalyserUpdates() {
+    window.cancelAnimationFrame(this.rafID);
+    this.rafID = null;
+  }
+
+  updateAnalysers() {
+    if (!this.analyserContext) {
+      let canvas: any = document.getElementById('analyser');
+      this.canvasWidth = canvas.width;
+      this.canvasHeight = canvas.height;
+      this.analyserContext = canvas.getContext('2d');
+    }
+
+    // analyzer draw code here
+    {
+      let SPACING = 3;
+      let BAR_WIDTH = 1;
+      let numBars = Math.round(this.canvasWidth / SPACING);
+      let freqByteData = new Uint8Array(this.analyserNode.frequencyBinCount);
+
+      this.analyserNode.getByteFrequencyData(freqByteData);
+
+      this.analyserContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+      this.analyserContext.fillStyle = '#F6D565';
+      this.analyserContext.lineCap = 'round';
+      let multiplier = this.analyserNode.frequencyBinCount / numBars;
+
+      // Draw rectangle for each frequency bin.
+      for (let i = 0; i < numBars; ++i) {
+        let magnitude = 0;
+        let offset = Math.floor(i * multiplier);
+        // gotta sum/average the block, or we miss narrow-bandwidth spikes
+        for (let j = 0; j < multiplier; j++) {
+          magnitude += freqByteData[offset + j];
+        }
+        magnitude = magnitude / multiplier;
+        let magnitude2 = freqByteData[i * multiplier];
+        this.analyserContext.fillStyle = 'hsl( ' + Math.round((i * 360) / numBars) + ', 100%, 50%)';
+        this.analyserContext.fillRect(i * SPACING, this.canvasHeight, BAR_WIDTH, -magnitude);
+      }
+    }
+
+    this.rafID = window.requestAnimationFrame(this.updateAnalysers.bind(this));
+  }
+
+  toggleMono() {
+    if (this.audioInput !== this.realAudioInput) {
+      this.audioInput.disconnect();
+      this.realAudioInput.disconnect();
+      this.audioInput = this.realAudioInput;
+    } else {
+      this.realAudioInput.disconnect();
+      this.audioInput = this.convertToMono(this.realAudioInput);
+    }
+
+    this.audioInput.connect(this.inputPoint);
+  }
+
+  gotStream(stream) {
+    console.log('HOOOOOOOOOORAY!', this.audioContext);
+
+    this.inputPoint = this.audioContext.createGain();
+
+    // Create an AudioNode from the stream.
+    this.realAudioInput = this.audioContext.createMediaStreamSource(stream);
+    this.audioInput = this.realAudioInput;
+    this.audioInput.connect(this.inputPoint);
+
+    //    audioInput = convertToMono( input );
+
+    this.analyserNode = this.audioContext.createAnalyser();
+    this.analyserNode.fftSize = 2048;
+    this.inputPoint.connect(this.analyserNode);
+
+    // audioRecorder = new Recorder(inputPoint);
+
+    this.zeroGain = this.audioContext.createGain();
+    this.zeroGain.gain.value = 0.0;
+    this.inputPoint.connect(this.zeroGain);
+    this.zeroGain.connect(this.audioContext.destination);
+    this.updateAnalysers();
+  }
+
+  drawBuffer(width, height, context, data) {
+    let step = Math.ceil(data.length / width);
+    let amp = height / 2;
+    context.fillStyle = 'silver';
+    context.clearRect(0, 0, width, height);
+    for (let i = 0; i < width; i++) {
+      let min = 1.0;
+      let max = -1.0;
+      for (let j = 0; j < step; j++) {
+        let datum = data[(i * step) + j];
+        if (datum < min) {
+          min = datum;
+        }
+        if (datum > max) {
+          max = datum;
+        }
+      }
+      context.fillRect(i, (1 + min) * amp, 1, Math.max(1, (max - min) * amp));
+    }
+  }
+
+  // -------------------------------------------------------------------
+  // IGNORE
+  // -------------------------------------------------------------------
+
+  private doSomethingRandom() {
     let d3 = this.d3;
     let canvas = document.querySelector('canvas'),
       context = canvas.getContext('2d'),
@@ -150,11 +297,11 @@ export class TrackComponent implements OnInit {
         ];
       }
       return points;
-    }    
+    }
   }
-  
-  
-  doSomethingPretty() {
+
+
+  private doSomethingPretty() {
     let d3 = this.d3;
 
     // set the dimensions and margins of the graph
@@ -176,9 +323,11 @@ export class TrackComponent implements OnInit {
       .selectAll('path')
       .data(['cyan', 'magenta', 'yellow'])
       .enter().append('path')
-      .attr('stroke', function(d) { return d; })
+      .attr('stroke', function (d) {
+        return d;
+      })
       .style('mix-blend-mode', 'darken')
-      .datum(function(d, i) {
+      .datum(function (d, i) {
         return d3.radialLine()
           .curve(d3.curveLinearClosed)
           .angle((a: any) => a)
@@ -188,14 +337,14 @@ export class TrackComponent implements OnInit {
           });
       });
 
-    d3.timer(function() {
+    d3.timer(function () {
       path.attr('d', (d: any) => d(angles));
-    });    
+    });
   }
-  
-  doSomethingViolent() {
+
+  private doSomethingViolent() {
     let data = [
-      {date: '1-May-12' , close: '58.13'},
+      {date: '1-May-12', close: '58.13'},
       {date: '30-Apr-12', close: '53.98'},
       {date: '27-Apr-12', close: '67.00'},
       {date: '26-Apr-12', close: '89.70'},
@@ -211,11 +360,11 @@ export class TrackComponent implements OnInit {
       {date: '12-Apr-12', close: '622.77'},
       {date: '11-Apr-12', close: '626.20'},
       {date: '10-Apr-12', close: '628.44'},
-      {date: '9-Apr-12' , close: '636.23'},
-      {date: '5-Apr-12' , close: '633.68'},
-      {date: '4-Apr-12' , close: '624.31'},
-      {date: '3-Apr-12' , close: '629.32'},
-      {date: '2-Apr-12' , close: '618.63'},
+      {date: '9-Apr-12', close: '636.23'},
+      {date: '5-Apr-12', close: '633.68'},
+      {date: '4-Apr-12', close: '624.31'},
+      {date: '3-Apr-12', close: '629.32'},
+      {date: '2-Apr-12', close: '618.63'},
       {date: '30-Mar-12', close: '599.55'},
       {date: '29-Mar-12', close: '609.86'},
       {date: '28-Mar-12', close: '617.62'},
@@ -278,6 +427,52 @@ export class TrackComponent implements OnInit {
       .call(d3.axisLeft(y));
   }
 
+  private doSomethingWavy() {
+    let wavesurfer = window['WaveSurfer'].create({
+      container: '#waveform',
+      waveColor: 'violet',
+      progressColor: 'purple'
+    });
+
+    wavesurfer.load('assets/audio/TellMeHow.mp3');
+  }
+
+  private doSomethingMicrophony() {
+    let wavesurfer = window['WaveSurfer'].create({
+      container: '#waveform',
+      waveColor: 'violet'
+    });
+
+    let microphone = Object.create(window['WaveSurfer'].Microphone);
+
+    microphone.init({
+      wavesurfer: wavesurfer
+    });
+
+    microphone.on('deviceReady', function (stream) {
+      console.log('Device ready!', stream);
+    });
+    microphone.on('deviceError', function (code) {
+      console.warn('Device error: ' + code);
+    });
+
+    // pause rendering
+    //microphone.pause();
+
+    // resume rendering
+    //microphone.play();
+
+    // stop visualization and disconnect microphone
+    //microphone.stopDevice();
+
+    // same as stopDevice() but also clears the wavesurfer canvas
+    //microphone.stop();
+
+    // destroy the plugin
+    //microphone.destroy();
+
+    microphone.start();
+  }
 
   private doSomethingLoud() {
     this.midiInputs = this.midiInputService.getInputs();

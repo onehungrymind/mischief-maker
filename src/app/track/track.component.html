@@ -8,6 +8,11 @@
 
 <div id="waveform"></div>
 
+<div id="viz">
+  <canvas id="analyser" width="1024" height="500"></canvas>
+  <canvas id="wavedisplay" width="1024" height="500"></canvas>
+</div>
+
 <pre>
   <div *ngFor="let note of notes">
     <span>{{note | json}}</span>
