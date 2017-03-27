@@ -30,19 +30,21 @@ export class SynthNote {
     'E7': 2637.02, 'F7': 2793.83, 'F#7': 2959.96, 'Gb7': 2959.96, 'G7': 3135.96,
     'G#7': 3322.44, 'Ab7': 3322.44, 'A7': 3520.00, 'A#7': 3729.31, 'Bb7': 3729.31,
     'B7': 3951.07, 'C8': 4186.01, 'C#8': 4434.92, 'Db8': 4434.92, 'D8': 4698.64,
-    'D#8': 4978.03, 'Eb8': 4978.0 };
+    'D#8': 4978.03, 'Eb8': 4978.0
+  };
 
-  protected _note: string;
+  note: string;
+  frequency: number;
+
   protected gainNode: GainNode;
-  protected _frequency: number;
   protected oscillator: OscillatorNode;
   protected playing = false;
 
   constructor(note: string, waveform: string, private audioContext: AudioContext, private audioBusNode: AudioNode) {
-    this._note = note;
-    this._frequency = SynthNote.noteMappings[note];
+    this.note = note;
+    this.frequency = SynthNote.noteMappings[note];
     this.oscillator = audioContext.createOscillator();
-    this.oscillator.frequency.value = this._frequency;
+    this.oscillator.frequency.value = this.frequency;
     this.gainNode = audioContext.createGain();
     this.gainNode.gain.value = 0.2;
     this.gainNode.connect(audioBusNode);
@@ -51,21 +53,13 @@ export class SynthNote {
     this.oscillator.start();
   }
 
-  get note(): string {
-    return this._note;
-  }
-
-  get frequency(): number {
-    return this._frequency;
-  }
-
-  public play() {
+  play() {
     this.oscillator.connect(this.gainNode);
     this.gainNode.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.5);
     let self = this;
     setTimeout(() => {
-       self.oscillator.disconnect(self.gainNode);
-       self.gainNode.disconnect(self.audioBusNode);
+      self.oscillator.disconnect(self.gainNode);
+      self.gainNode.disconnect(self.audioBusNode);
     }, 2000);
   }
 }

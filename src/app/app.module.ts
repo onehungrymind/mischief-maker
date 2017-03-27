@@ -6,6 +6,8 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
+import { D3Service } from 'd3-ng2-service';
+
 import { AppComponent } from './app.component';
 import { ControlPanelComponent } from './control-panel/control-panel.component';
 
@@ -29,6 +31,7 @@ import { TrackComponent } from './track/track.component';
     HttpModule
   ],
   providers: [
+    D3Service,
     MnFullpageService,
     MidiInputService,
     AudioOutputService,

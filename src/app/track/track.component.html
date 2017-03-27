@@ -3,7 +3,11 @@
   <option [value]="input.id" *ngFor="let input of midiInputs | async">{{input.name}}</option>
 </select>
 <h1>{{currentNote}}</h1>
-<canvas id="theCanvas" width="1024" height="256" title="Press Play!"></canvas>
+
+<canvas width="960" height="500"></canvas>
+
+<div id="waveform"></div>
+
 <pre>
   <div *ngFor="let note of notes">
     <span>{{note | json}}</span>
