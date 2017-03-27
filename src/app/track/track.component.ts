@@ -1,8 +1,9 @@
-import { ChangeDetectorRef, Component, ElementRef, NgZone, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, NgZone, OnInit, ViewChild } from '@angular/core';
 import { D3, D3Service, Timer } from 'd3-ng2-service';
 
 import { MidiInputService } from '../services/pipeline/inputs/midi-input.service';
 import { PipelineService } from '../services/pipeline/pipeline.service';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-track',
@@ -26,7 +27,9 @@ export class TrackComponent implements OnInit {
   canvasHeight;
   zeroGain;
   recIndex = 0;
-
+  isRecording = false;
+  downloadLink;
+  downloadFile;
 
   private d3: D3;
   private parentNativeElement: any;
@@ -34,6 +37,7 @@ export class TrackComponent implements OnInit {
   constructor(private midiInputService: MidiInputService,
               private pipelineService: PipelineService,
               private cd: ChangeDetectorRef,
+              private sanitizer: DomSanitizer,
               element: ElementRef,
               d3Service: D3Service) {
     this.d3 = d3Service.getD3();
@@ -46,12 +50,10 @@ export class TrackComponent implements OnInit {
     // this.doSomethingPretty();
     // this.doSomethingRandom();
     // this.doSomethingMicrophony();
-    this.doSomethingVizzy();
-    
-    console.log('-------------->', this.audioContext);
+    this.doSomethingVisual();
   }
 
-  doSomethingVizzy() {
+  doSomethingVisual() {
     let mediaConstraints: any = {
       audio: {
         mandatory: {
@@ -64,61 +66,46 @@ export class TrackComponent implements OnInit {
       }
     };
 
-
     navigator.getUserMedia(
-      mediaConstraints, this.gotStream.bind(this), e => {
-        alert('Error getting audio');
-        console.log(e);
-      });
+      mediaConstraints,
+      this.gotStream.bind(this),
+      e => console.log(e));
   }
 
-
   saveAudio() {
-    this.audioRecorder.exportWAV(this.doneEncoding);
+    this.audioRecorder.exportWAV(this.doneEncoding.bind(this));
     // could get mono instead by saying
     // audioRecorder.exportMonoWAV( doneEncoding );
   }
 
-  gotBuffers(buffers) {
-    let canvas: any = document.getElementById('wavedisplay');
-
-    this.drawBuffer(canvas.width, canvas.height, canvas.getContext('2d'), buffers[0]);
-
-    // the ONLY time gotBuffers is called is right after a new recording is completed - 
-    // so here's where we should set up the download.
-    this.audioRecorder.exportWAV(this.doneEncoding);
-  }
-
   doneEncoding(blob) {
-    // Recorder.setupDownload(blob, 'myRecording' + ((this.recIndex < 10) ? '0' : '') + this.recIndex + '.wav');
-    // this.recIndex++;
+    this.setupDownload(blob, 'myRecording' + ((this.recIndex < 10) ? '0' : '') + this.recIndex + '.wav');
+    this.recIndex++;
   }
 
-  toggleRecording(e) {
-    if (e.classList.contains('recording')) {
+  setupDownload(blob, filename) {
+    let url = (window.URL).createObjectURL(blob);
+    this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(url);
+    this.downloadFile = filename || 'output.wav';
+  }
+
+  toggleRecording() {
+
+    if (this.isRecording) {
       // stop recording
       this.audioRecorder.stop();
-      e.classList.remove('recording');
-      this.audioRecorder.getBuffers(this.gotBuffers);
+      this.audioRecorder.getBuffers(this.gotBuffers.bind(this));
+      this.isRecording = false;
     } else {
       // start recording
       if (!this.audioRecorder) {
         return;
       }
-      e.classList.add('recording');
+
+      this.isRecording = true;
       this.audioRecorder.clear();
       this.audioRecorder.record();
     }
-  }
-
-  convertToMono(input) {
-    let splitter = this.audioContext.createChannelSplitter(2);
-    let merger = this.audioContext.createChannelMerger(2);
-
-    input.connect(splitter);
-    splitter.connect(merger, 0, 0);
-    splitter.connect(merger, 0, 1);
-    return merger;
   }
 
   cancelAnalyserUpdates() {
@@ -135,53 +122,36 @@ export class TrackComponent implements OnInit {
     }
 
     // analyzer draw code here
-    {
-      let SPACING = 3;
-      let BAR_WIDTH = 1;
-      let numBars = Math.round(this.canvasWidth / SPACING);
-      let freqByteData = new Uint8Array(this.analyserNode.frequencyBinCount);
+    let SPACING = 3;
+    let BAR_WIDTH = 1;
+    let numBars = Math.round(this.canvasWidth / SPACING);
+    let freqByteData = new Uint8Array(this.analyserNode.frequencyBinCount);
 
-      this.analyserNode.getByteFrequencyData(freqByteData);
+    this.analyserNode.getByteFrequencyData(freqByteData);
 
-      this.analyserContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
-      this.analyserContext.fillStyle = '#F6D565';
-      this.analyserContext.lineCap = 'round';
-      let multiplier = this.analyserNode.frequencyBinCount / numBars;
+    this.analyserContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+    this.analyserContext.fillStyle = '#F6D565';
+    this.analyserContext.lineCap = 'round';
 
-      // Draw rectangle for each frequency bin.
-      for (let i = 0; i < numBars; ++i) {
-        let magnitude = 0;
-        let offset = Math.floor(i * multiplier);
-        // gotta sum/average the block, or we miss narrow-bandwidth spikes
-        for (let j = 0; j < multiplier; j++) {
-          magnitude += freqByteData[offset + j];
-        }
-        magnitude = magnitude / multiplier;
-        let magnitude2 = freqByteData[i * multiplier];
-        this.analyserContext.fillStyle = 'hsl( ' + Math.round((i * 360) / numBars) + ', 100%, 50%)';
-        this.analyserContext.fillRect(i * SPACING, this.canvasHeight, BAR_WIDTH, -magnitude);
+    let multiplier = this.analyserNode.frequencyBinCount / numBars;
+
+    // Draw rectangle for each frequency bin.
+    for (let i = 0; i < numBars; ++i) {
+      let magnitude = 0;
+      let offset = Math.floor(i * multiplier);
+      // gotta sum/average the block, or we miss narrow-bandwidth spikes
+      for (let j = 0; j < multiplier; j++) {
+        magnitude += freqByteData[offset + j];
       }
+      magnitude = magnitude / multiplier;
+      this.analyserContext.fillStyle = 'hsl( ' + Math.round((i * 360) / numBars) + ', 100%, 50%)';
+      this.analyserContext.fillRect(i * SPACING, this.canvasHeight, BAR_WIDTH, -magnitude);
     }
 
     this.rafID = window.requestAnimationFrame(this.updateAnalysers.bind(this));
   }
 
-  toggleMono() {
-    if (this.audioInput !== this.realAudioInput) {
-      this.audioInput.disconnect();
-      this.realAudioInput.disconnect();
-      this.audioInput = this.realAudioInput;
-    } else {
-      this.realAudioInput.disconnect();
-      this.audioInput = this.convertToMono(this.realAudioInput);
-    }
-
-    this.audioInput.connect(this.inputPoint);
-  }
-
   gotStream(stream) {
-    console.log('HOOOOOOOOOORAY!', this.audioContext);
-
     this.inputPoint = this.audioContext.createGain();
 
     // Create an AudioNode from the stream.
@@ -189,19 +159,29 @@ export class TrackComponent implements OnInit {
     this.audioInput = this.realAudioInput;
     this.audioInput.connect(this.inputPoint);
 
-    //    audioInput = convertToMono( input );
+    // audioInput = convertToMono( input );
 
     this.analyserNode = this.audioContext.createAnalyser();
     this.analyserNode.fftSize = 2048;
     this.inputPoint.connect(this.analyserNode);
 
-    // audioRecorder = new Recorder(inputPoint);
+    this.audioRecorder = new window['Recorder'](this.inputPoint);
 
     this.zeroGain = this.audioContext.createGain();
     this.zeroGain.gain.value = 0.0;
     this.inputPoint.connect(this.zeroGain);
     this.zeroGain.connect(this.audioContext.destination);
     this.updateAnalysers();
+  }
+
+  gotBuffers(buffers) {
+    let canvas: any = document.getElementById('wavedisplay');
+
+    this.drawBuffer(canvas.width, canvas.height, canvas.getContext('2d'), buffers[0]);
+
+    // the ONLY time gotBuffers is called is right after a new recording is completed -
+    // so here's where we should set up the download.
+    this.audioRecorder.exportWAV(this.doneEncoding.bind(this));
   }
 
   drawBuffer(width, height, context, data) {
@@ -223,6 +203,29 @@ export class TrackComponent implements OnInit {
       }
       context.fillRect(i, (1 + min) * amp, 1, Math.max(1, (max - min) * amp));
     }
+  }
+
+  convertToMono(input) {
+    let splitter = this.audioContext.createChannelSplitter(2);
+    let merger = this.audioContext.createChannelMerger(2);
+
+    input.connect(splitter);
+    splitter.connect(merger, 0, 0);
+    splitter.connect(merger, 0, 1);
+    return merger;
+  }
+
+  toggleMono() {
+    if (this.audioInput !== this.realAudioInput) {
+      this.audioInput.disconnect();
+      this.realAudioInput.disconnect();
+      this.audioInput = this.realAudioInput;
+    } else {
+      this.realAudioInput.disconnect();
+      this.audioInput = this.convertToMono(this.realAudioInput);
+    }
+
+    this.audioInput.connect(this.inputPoint);
   }
 
   // -------------------------------------------------------------------

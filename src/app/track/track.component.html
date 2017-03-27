@@ -1,3 +1,5 @@
+
+<!--
 <select name="controller" id="controller" (change)="connectSource($event)">
   <option value="">Select</option>
   <option [value]="input.id" *ngFor="let input of midiInputs | async">{{input.name}}</option>
@@ -7,15 +9,23 @@
 <canvas width="960" height="500"></canvas>
 
 <div id="waveform"></div>
+-->
 
 <div id="viz">
   <canvas id="analyser" width="1024" height="500"></canvas>
   <canvas id="wavedisplay" width="1024" height="500"></canvas>
 </div>
 
+<div id="controls">
+  <button (click)="toggleRecording()" #recordBtn ngClass="{'recording':isRecording}">{{isRecording ? 'Stop Recording': 'Start Recording'}}</button>
+  <a [href]="downloadLink" [download]="downloadFile">Save</a>
+</div>
+
+<!--
 <pre>
   <div *ngFor="let note of notes">
     <span>{{note | json}}</span>
     <br>
   </div>
 </pre>
+-->
