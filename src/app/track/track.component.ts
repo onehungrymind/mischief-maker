@@ -5,6 +5,19 @@ import { MidiInputService } from '../services/pipeline/inputs/midi-input.service
 import { PipelineService } from '../services/pipeline/pipeline.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
+import { Observer } from 'rxjs/Observer';
+import { Subject } from 'rxjs';
+
+const noteTransforms = {
+  // TODO Map the rest
+  48: 'C2', 49: 'C#2', 50: 'D2', 51: 'D#2', 52: 'E2', 53: 'F2', 54: 'F#2', 55: 'G2', 56: 'G#2', 57: 'A2', 58: 'A#2', 59: 'B2',
+  60: 'C3', 61: 'C#3', 62: 'D3', 63: 'D#3', 64: 'E3', 65: 'F3', 66: 'F#3', 67: 'G3', 68: 'G#3', 69: 'A3', 70: 'A#3', 71: 'B3',
+  72: 'C4', 73: 'C#4', 74: 'D4', 75: 'D#4', 76: 'E4', 77: 'F4', 78: 'F#4', 79: 'G4', 80: 'G#4', 81: 'A4', 82: 'A#4', 83: 'B4',
+};
+
+declare const navigator: any;
+const Tone = window['Tone'];
 
 @Component({
   selector: 'app-track',
@@ -31,9 +44,13 @@ export class TrackComponent implements OnInit {
   isRecording = false;
   downloadLink;
   downloadFile;
+  synth = null;
+  path = null;
+
 
   private d3: D3;
   private parentNativeElement: any;
+
 
   constructor(private midiInputService: MidiInputService,
               private pipelineService: PipelineService,
@@ -43,15 +60,161 @@ export class TrackComponent implements OnInit {
               d3Service: D3Service) {
     this.d3 = d3Service.getD3();
     this.parentNativeElement = element.nativeElement;
+    this.synth = this.initSynth();
   }
 
   ngOnInit() {
-    this.doSomethingLoud();
+    this.doSomethingClever();
+
+    // this.doSomethingLoud();
     // this.doSomethingViolent();
-    // this.doSomethingPretty();
+    this.doSomethingPretty();
     // this.doSomethingRandom();
     // this.doSomethingMicrophony();
-    this.doSomethingVisual();
+    // this.doSomethingVisual();
+  }
+
+  private initSynth() {
+    return new Tone.MonoSynth({
+      'portamento': 0.01,
+      'oscillator': {
+        'type': 'square'
+      },
+      'envelope': {
+        'attack': 0.005,
+        'decay': 0.2,
+        'sustain': 0.4,
+        'release': 1.4,
+      },
+      'filterEnvelope': {
+        'attack': 0.005,
+        'decay': 0.1,
+        'sustain': 0.05,
+        'release': 0.8,
+        'baseFrequency': 300,
+        'octaves': 4
+      }
+    }).toMaster();
+  }
+
+  private midiMessageReceived(message: any) {
+    let cmd = message.status >> 4;
+    let channel = message.status & 0xf;
+    let noteNumber = message.data[0];
+    let velocity = 0;
+    if (message.data.length > 1) {
+      velocity = message.data[1] / 120; // needs to be between 0 and 1 and sometimes it is over 100 ¯\_(ツ)_/¯
+    }
+
+    // MIDI noteon with velocity=0 is the same as noteoff
+    if (cmd === 8 || ((cmd === 9) && (velocity === 0))) { // noteoff
+      this.synth.triggerRelease();
+      // noteOff(noteNumber);
+    } else if (cmd === 9) { // note on
+      // let angles = this.d3.range(0, 2 * Math.PI, Math.PI / 200);
+      let angles = this.d3.range(0, 2 * Math.PI, velocity / 200);
+      this.path.attr('d', (d: any) => d(angles));
+
+      this.synth.triggerAttack(noteNumber, null, velocity);
+      // noteOn(noteNumber, velocity);
+    } else if (cmd === 11) { // controller message
+      // controller(noteNumber, velocity);
+    } else {
+      // probably sysex!
+    }
+  }
+
+  private stateChangeAsObservable(midi) {
+    const source = new Subject();
+    midi.onstatechange = event => source.next(event);
+    return source.asObservable();
+  }
+
+  private midiMessageAsObservable(input) {
+    const source = new Subject();
+    input.onmidimessage = note => source.next(note);
+    return source.asObservable();
+  }
+
+  private doSomethingClever() {
+    const midiAccess$ = Observable.fromPromise(navigator.requestMIDIAccess());
+
+    const stateStream$ = midiAccess$.flatMap(access => this.stateChangeAsObservable(access));
+
+    const inputStream$ = midiAccess$
+      .map((midi: any) => midi.inputs.values().next().value)
+    ;
+
+    const messages$ = inputStream$
+      .filter(input => input !== undefined)
+      .flatMap(input => this.midiMessageAsObservable(input))
+      .map((message: any) => ({
+        // Collect relevant data from the message
+        // See for example http://www.midi.org/techspecs/midimessages.php
+        status: message.data[0] & 0xf0,
+        data: [
+          message.data[1],
+          message.data[2],
+        ],
+      }))
+    ;
+
+    stateStream$.subscribe(state => console.log('STATE CHANGE EVENT', state));
+
+    messages$.subscribe(note => this.midiMessageReceived(note));
+
+    // Stream of note on messages
+    // const notes$ = messages$.filter(message => message.status === 144);
+
+    // Stream of control change messages
+    // const controls$ = messages$.filter(message => message.status === 176);
+
+    // notes$.subscribe(message => {
+    //   console.log(`Note ${message.data[0]} triggered with velocity ${message.data[1]}`);
+    // });
+
+    // controls$.subscribe(message => {
+    //   console.log(`Control ${message.data[0]} changed with value ${message.data[1]}`);
+    // });
+  }
+
+  private doSomethingPretty() {
+    let d3 = this.d3;
+
+    // set the dimensions and margins of the graph
+    let margin = {top: 20, right: 20, bottom: 30, left: 50},
+      width = 960 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom,
+      angles = d3.range(0, 2 * Math.PI, Math.PI / 200);
+
+    let svg = d3.select(this.parentNativeElement)
+      .append('svg')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom);
+
+    this.path = svg.append('g')
+      .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
+      .attr('fill', 'none')
+      .attr('stroke-width', 10)
+      .attr('stroke-linejoin', 'round')
+      .selectAll('path')
+      .data(['cyan', 'magenta', 'yellow'])
+      .enter().append('path')
+      .attr('stroke', function (d) {
+        return d;
+      })
+      .style('mix-blend-mode', 'darken')
+      .datum(function (d, i) {
+        return d3.radialLine()
+          .curve(d3.curveLinearClosed)
+          .angle((a: any) => a)
+          .radius((a: any) => {
+            let t = d3.now() / 1000;
+            return 200 + Math.cos(a * 8 - i * 2 * Math.PI / 3 + t) * Math.pow((1 + Math.cos(a - t)) / 2, 3) * 32;
+          });
+      });
+
+    // d3.timer(() => this.path.attr('d', (d: any) => d(angles)));
   }
 
   private doSomethingLoud() {
@@ -60,9 +223,9 @@ export class TrackComponent implements OnInit {
 
     this.pipelineService.synthStream$
       .subscribe(note => {
-        this.currentNote = note['note'];
         // this.notes.push(note);
-        // this.cd.detectChanges();
+        this.currentNote = noteTransforms[note['note']];
+        this.cd.detectChanges();
       });
   }
 
@@ -173,7 +336,32 @@ export class TrackComponent implements OnInit {
   }
 
   gotStream(stream) {
-    console.log('STREAM', stream);
+    this.inputPoint = this.audioContext.createGain();
+
+    // Create an AudioNode from the stream.
+    this.realAudioInput = this.audioContext.createMediaStreamSource(stream);
+    this.audioInput = this.realAudioInput;
+    this.audioInput.connect(this.inputPoint);
+
+    // audioInput = convertToMono( input );
+
+    this.analyserNode = this.audioContext.createAnalyser();
+    this.analyserNode.fftSize = 2048;
+    this.inputPoint.connect(this.analyserNode);
+
+    this.audioRecorder = new window['Recorder'](this.inputPoint);
+
+    this.zeroGain = this.audioContext.createGain();
+    this.zeroGain.gain.value = 0.0;
+    this.inputPoint.connect(this.zeroGain);
+    this.zeroGain.connect(this.audioContext.destination);
+    this.updateAnalysers();
+
+    this.analyserNode = this.audioContext.createAnalyser();
+    this.inputPoint.connect(this.analyserNode);
+    this.analyserNode.fftSize = 2048;
+    this.inputPoint.connect(this.audioContext.destination);
+
 
     // Create an AudioNode from the stream.
     // this.realAudioInput = this.audioContext.createMediaStreamSource(stream);
@@ -183,27 +371,22 @@ export class TrackComponent implements OnInit {
     // audioInput = convertToMono( input );
 
     // TEST
-    let oscillator = this.audioContext.createOscillator();
-    oscillator.type = 'sine';
-    oscillator.frequency.value = 440;
-    oscillator.start(0);
+    // let oscillator = this.audioContext.createOscillator();
+    // oscillator.type = 'sine';
+    // oscillator.frequency.value = 440;
+    // oscillator.start(0);
     //
 
-    this.inputPoint = this.audioContext.createGain();
-    this.inputPoint.gain.value = 1;
-    oscillator.connect(this.inputPoint);
-
-    this.analyserNode = this.audioContext.createAnalyser();
-    this.inputPoint.connect(this.analyserNode);
-    this.analyserNode.fftSize = 2048;
-    this.inputPoint.connect(this.audioContext.destination);
+    // this.inputPoint = this.audioContext.createGain();
+    // this.inputPoint.gain.value = 1;
+    // oscillator.connect(this.inputPoint);
 
     // this.audioRecorder = new window['Recorder'](this.inputPoint);
 
     // this.zeroGain = this.audioContext.createGain();
     // this.zeroGain.gain.value = 0.0;
     // this.inputPoint.connect(this.zeroGain);
-    this.updateAnalysers();
+    // this.updateAnalysers();
   }
 
   gotBuffers(buffers) {
@@ -333,48 +516,6 @@ export class TrackComponent implements OnInit {
       }
       return points;
     }
-  }
-
-
-  private doSomethingPretty() {
-    let d3 = this.d3;
-
-    // set the dimensions and margins of the graph
-    let margin = {top: 20, right: 20, bottom: 30, left: 50},
-      width = 960 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom,
-      angles = d3.range(0, 2 * Math.PI, Math.PI / 200);
-
-    let svg = d3.select(this.parentNativeElement)
-      .append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom);
-
-    let path = svg.append('g')
-      .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
-      .attr('fill', 'none')
-      .attr('stroke-width', 10)
-      .attr('stroke-linejoin', 'round')
-      .selectAll('path')
-      .data(['cyan', 'magenta', 'yellow'])
-      .enter().append('path')
-      .attr('stroke', function (d) {
-        return d;
-      })
-      .style('mix-blend-mode', 'darken')
-      .datum(function (d, i) {
-        return d3.radialLine()
-          .curve(d3.curveLinearClosed)
-          .angle((a: any) => a)
-          .radius((a: any) => {
-            let t = d3.now() / 1000;
-            return 200 + Math.cos(a * 8 - i * 2 * Math.PI / 3 + t) * Math.pow((1 + Math.cos(a - t)) / 2, 3) * 32;
-          });
-      });
-
-    d3.timer(function () {
-      path.attr('d', (d: any) => d(angles));
-    });
   }
 
   private doSomethingViolent() {

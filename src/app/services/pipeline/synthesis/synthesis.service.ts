@@ -35,26 +35,46 @@ export class SynthesisService {
   }
 
   private setupSubscriptions() {
-    const self = this;
+    let synth = new window['Tone'].Synth({
+      oscillator : {
+        type : 'fmsquare',
+        modulationType : 'sawtooth',
+        modulationIndex : 3,
+        harmonicity: 3.4
+      },
+      envelope : {
+        attack : 0.001,
+        decay : 0.1,
+        sustain: 0.1,
+        release: 0.1
+      }
+    }).toMaster();
+
     this.noteStream$
       .subscribe(
         (message: SynthMessage) => {
           if (message instanceof SynthNoteOn) {
-            console.log('playing message', message, 'with waveform', self.currentWaveForm);
-            let synthNote: SynthNote = new SynthNote(message.note, self.currentWaveForm, self.audioContext, self.targetNode);
-            synthNote.play();
-          } else if (message instanceof ClockTick) {
-            console.log('pulse!');
-            self.clockTick();
+            synth.triggerAttack(message.note);
           } else if (message instanceof SynthNoteOff) {
-            console.log('synthnote off sent. Ignoring...');
-          } else if (message instanceof WaveformChange) {
-            console.log('new waveform value is ', message.waveForm);
-            self.currentWaveForm = message.waveForm;
-          } else {
-            console.log('unknown message');
-            console.dir(message);
+            synth.triggerRelease();
           }
+
+          // if (message instanceof SynthNoteOn) {
+          //   console.log('playing message', message, 'with waveform', self.currentWaveForm);
+          //   let synthNote: SynthNote = new SynthNote(message.note, self.currentWaveForm, self.audioContext, self.targetNode);
+          //   synthNote.play();
+          // } else if (message instanceof ClockTick) {
+          //   console.log('pulse!');
+          //   self.clockTick();
+          // } else if (message instanceof SynthNoteOff) {
+          //   console.log('synthnote off sent. Ignoring...');
+          // } else if (message instanceof WaveformChange) {
+          //   console.log('new waveform value is ', message.waveForm);
+          //   self.currentWaveForm = message.waveForm;
+          // } else {
+          //   console.log('unknown message');
+          //   console.dir(message);
+          // }
         }
       );
   }
