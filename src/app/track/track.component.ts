@@ -175,25 +175,34 @@ export class TrackComponent implements OnInit {
   gotStream(stream) {
     console.log('STREAM', stream);
 
-    this.inputPoint = this.audioContext.createGain();
-
     // Create an AudioNode from the stream.
-    this.realAudioInput = this.audioContext.createMediaStreamSource(stream);
-    this.audioInput = this.realAudioInput;
-    this.audioInput.connect(this.inputPoint);
+    // this.realAudioInput = this.audioContext.createMediaStreamSource(stream);
+    // this.audioInput = this.realAudioInput;
+    // this.audioInput.connect(this.inputPoint);
 
     // audioInput = convertToMono( input );
 
+    // TEST
+    let oscillator = this.audioContext.createOscillator();
+    oscillator.type = 'sine';
+    oscillator.frequency.value = 440;
+    oscillator.start(0);
+    //
+
+    this.inputPoint = this.audioContext.createGain();
+    this.inputPoint.gain.value = 1;
+    oscillator.connect(this.inputPoint);
+
     this.analyserNode = this.audioContext.createAnalyser();
-    this.analyserNode.fftSize = 2048;
     this.inputPoint.connect(this.analyserNode);
+    this.analyserNode.fftSize = 2048;
+    this.inputPoint.connect(this.audioContext.destination);
 
-    this.audioRecorder = new window['Recorder'](this.inputPoint);
+    // this.audioRecorder = new window['Recorder'](this.inputPoint);
 
-    this.zeroGain = this.audioContext.createGain();
-    this.zeroGain.gain.value = 0.0;
-    this.inputPoint.connect(this.zeroGain);
-    this.zeroGain.connect(this.audioContext.destination);
+    // this.zeroGain = this.audioContext.createGain();
+    // this.zeroGain.gain.value = 0.0;
+    // this.inputPoint.connect(this.zeroGain);
     this.updateAnalysers();
   }
 
