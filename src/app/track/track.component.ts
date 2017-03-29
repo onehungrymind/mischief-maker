@@ -28,6 +28,7 @@ export class TrackComponent implements OnInit {
   midiInputs: Array<any>;
   notes: Array<any> = [];
   currentNote;
+  noteTransforms = Object.keys(noteTransforms).map((key)=>{ return {frequency: key, note: noteTransforms[key]}});
 
   audioContext: AudioContext = window['theAudioContext'];
   audioInput = null;
@@ -74,6 +75,10 @@ export class TrackComponent implements OnInit {
     // this.doSomethingVisual();
   }
 
+  getAdjustedNoteHeight(note) {
+    return `${50 + note.pressure / 2.5}%`;
+  }
+
   private initSynth() {
     return new Tone.MonoSynth({
       'portamento': 0.01,
@@ -112,8 +117,8 @@ export class TrackComponent implements OnInit {
       // noteOff(noteNumber);
     } else if (cmd === 9) { // note on
       // let angles = this.d3.range(0, 2 * Math.PI, Math.PI / 200);
-      let angles = this.d3.range(0, 2 * Math.PI, velocity / 200);
-      this.path.attr('d', (d: any) => d(angles));
+      // let angles = this.d3.range(0, 2 * Math.PI, velocity / 200);
+      // this.path.attr('d', (d: any) => d(angles));
 
       this.synth.triggerAttack(noteNumber, null, velocity);
       // noteOn(noteNumber, velocity);
@@ -161,7 +166,21 @@ export class TrackComponent implements OnInit {
 
     stateStream$.subscribe(state => console.log('STATE CHANGE EVENT', state));
 
-    messages$.subscribe(note => this.midiMessageReceived(note));
+    messages$.subscribe(note => {
+      const frequency = note.data[0];
+      const pressure = note.data[1];
+
+      // JG ~ may be a better way to do this
+      this.noteTransforms
+        .forEach(note => {
+          if (note.frequency == frequency) {
+            note['active'] = pressure > 0;
+            note['pressure'] = pressure;
+          }
+        });
+      this.midiMessageReceived(note)
+      this.cd.detectChanges();
+    });
 
     // Stream of note on messages
     // const notes$ = messages$.filter(message => message.status === 144);
