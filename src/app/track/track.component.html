@@ -1,26 +1,32 @@
-<div class="visualization">
-  <div class="bar"
-       [ngClass]="{active: note.active}"
-       [ngStyle]="{height: getAdjustedNoteHeight(note)}"
-       *ngFor="let note of noteTransforms"></div>
-</div>
-
-<!--
+<!-- CONNECT
 <select name="controller" id="controller" (change)="connectSource($event)">
   <option value="">Select</option>
   <option [value]="input.id" *ngFor="let input of midiInputs">{{input.name}}</option>
 </select>
+-->
 
+<!-- CAPTURE -->
 <h1>{{currentNote}}</h1>
+
+<!-- CAPTURE
+<pre>
+  <div *ngFor="let note of notes">
+    <span>{{note | json}}</span>
+    <br>
+  </div>
+</pre>
 -->
 
-<!--
-<canvas width="960" height="500"></canvas>
+<!-- VISUALIZE -->
+<div class="visualization">
+  <div class="bar"
+       [ngClass]="{active: note.active}"
+       [style.height]="getAdjustedNoteHeight(note)"
+       *ngFor="let note of noteTransforms">
+  </div>
+</div>
 
-<div id="waveform"></div>
--->
-
-<!--
+<!-- DISPLAY AND RECORD
 <div id="viz">
   <canvas id="analyser" width="1024" height="500"></canvas>
   <canvas id="wavedisplay" width="1024" height="500"></canvas>
@@ -32,12 +38,10 @@
 </div>
 -->
 
-<!--
-<pre>
-  <div *ngFor="let note of notes">
-    <span>{{note | json}}</span>
-    <br>
-  </div>
-</pre>
+<!-- PENDING
+<canvas width="960" height="500"></canvas>
 -->
 
+<!-- PENDING
+<div id="waveform"></div>
+-->
