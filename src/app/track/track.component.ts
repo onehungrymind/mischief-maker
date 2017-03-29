@@ -69,7 +69,7 @@ export class TrackComponent implements OnInit {
 
     // this.doSomethingLoud();
     // this.doSomethingViolent();
-    this.doSomethingPretty();
+    // this.doSomethingPretty();
     // this.doSomethingRandom();
     // this.doSomethingMicrophony();
     // this.doSomethingVisual();
@@ -114,16 +114,10 @@ export class TrackComponent implements OnInit {
     // MIDI noteon with velocity=0 is the same as noteoff
     if (cmd === 8 || ((cmd === 9) && (velocity === 0))) { // noteoff
       this.synth.triggerRelease();
-      // noteOff(noteNumber);
     } else if (cmd === 9) { // note on
-      // let angles = this.d3.range(0, 2 * Math.PI, Math.PI / 200);
-      // let angles = this.d3.range(0, 2 * Math.PI, velocity / 200);
-      // this.path.attr('d', (d: any) => d(angles));
-
       this.synth.triggerAttack(noteNumber, null, velocity);
-      // noteOn(noteNumber, velocity);
     } else if (cmd === 11) { // controller message
-      // controller(noteNumber, velocity);
+      // do something eventually!
     } else {
       // probably sysex!
     }
@@ -168,17 +162,17 @@ export class TrackComponent implements OnInit {
 
     messages$.subscribe(note => {
       const frequency = note.data[0];
-      const pressure = note.data[1];
+      const pressure  = note.data[1];
 
       // JG ~ may be a better way to do this
       this.noteTransforms
-        .forEach(note => {
-          if (note.frequency == frequency) {
-            note['active'] = pressure > 0;
-            note['pressure'] = pressure;
+        .forEach(n => {
+          if (n.frequency === frequency) {
+            n['active']   = pressure > 0;
+            n['pressure'] = pressure;
           }
         });
-      this.midiMessageReceived(note)
+      this.midiMessageReceived(note);
       this.cd.detectChanges();
     });
 
@@ -233,7 +227,7 @@ export class TrackComponent implements OnInit {
           });
       });
 
-    // d3.timer(() => this.path.attr('d', (d: any) => d(angles)));
+    d3.timer(() => this.path.attr('d', (d: any) => d(angles)));
   }
 
   private doSomethingLoud() {
