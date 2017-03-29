@@ -17,7 +17,7 @@
 </pre>
 -->
 
-<!-- VISUALIZE -->
+<!-- VISUALIZE
 <div class="visualization">
   <div class="bar"
        [ngClass]="{active: note.active}"
@@ -25,6 +25,7 @@
        *ngFor="let note of noteTransforms">
   </div>
 </div>
+-->
 
 <!-- DISPLAY AND RECORD
 <div id="viz">
@@ -38,9 +39,14 @@
 </div>
 -->
 
-<!-- PENDING
-<canvas width="960" height="500"></canvas>
--->
+<!-- PENDING -->
+<canvas id="fft" width="1024" height="200"></canvas>
+<canvas id="waveform" width="1024" height="200"></canvas>
+
+<div id="controls">
+  <button (click)="toggleRecording()" #recordBtn ngClass="{'recording':isRecording}">{{isRecording ? 'Stop Recording': 'Start Recording'}}</button>
+  <a [href]="downloadLink" [download]="downloadFile">Save</a>
+</div>
 
 <!-- PENDING
 <div id="waveform"></div>

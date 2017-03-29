@@ -1,25 +1,25 @@
-import { ChangeDetectorRef, Component, ElementRef, NgZone, OnInit, ViewChild } from '@angular/core';
-import { D3, D3Service, Timer } from 'd3-ng2-service';
+import { ChangeDetectorRef, Component, ElementRef, OnInit } from '@angular/core';
+import { D3, D3Service } from 'd3-ng2-service';
 
 import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs';
 
 const noteTransforms = {
-  // 33: 'A0', 34: 'A#0', 35: 'B0',
-  // 36: 'C1', 37: 'C#1', 38: 'D1', 39: 'D#1', 40: 'E1', 41: 'F1', 42: 'F#1', 43: 'G1', 44: 'G#1', 45: 'A1', 46: 'A#1', 47: 'B1',
-  // 48: 'C2', 49: 'C#2', 50: 'D2', 51: 'D#2', 52: 'E2', 53: 'F2', 54: 'F#2', 55: 'G2', 56: 'G#2', 57: 'A2', 58: 'A#2', 59: 'B2',
+  33: 'A0', 34: 'A#0', 35: 'B0',
+  36: 'C1', 37: 'C#1', 38: 'D1', 39: 'D#1', 40: 'E1', 41: 'F1', 42: 'F#1', 43: 'G1', 44: 'G#1', 45: 'A1', 46: 'A#1', 47: 'B1',
+  48: 'C2', 49: 'C#2', 50: 'D2', 51: 'D#2', 52: 'E2', 53: 'F2', 54: 'F#2', 55: 'G2', 56: 'G#2', 57: 'A2', 58: 'A#2', 59: 'B2',
   60: 'C3', 61: 'C#3', 62: 'D3', 63: 'D#3', 64: 'E3', 65: 'F3', 66: 'F#3', 67: 'G3', 68: 'G#3', 69: 'A3', 70: 'A#3', 71: 'B3',
   72: 'C4', 73: 'C#4', 74: 'D4', 75: 'D#4', 76: 'E4', 77: 'F4', 78: 'F#4', 79: 'G4', 80: 'G#4', 81: 'A4', 82: 'A#4', 83: 'B4',
-  84: 'C5'
-  // , 85: 'C#5', 86: 'D5', 87: 'D#5', 88: 'E5', 89: 'F5', 90: 'F#5', 91: 'G5', 92: 'G#5', 93: 'A5', 94: 'A#5', 95: 'B5',
-  // 96: 'C6', 97: 'C#6', 98: 'D6', 99: 'D#6', 100: 'E6', 101: 'F6', 102: 'F#6', 103: 'G6', 104: 'G#6', 105: 'A6', 106: 'A#6', 107: 'B6',
-  // 108: 'C7', 109: 'C#7', 110: 'D7', 111: 'D#7', 112: 'E7', 113: 'F7', 114: 'F#7', 115: 'G7', 116: 'G#7', 117: 'A7', 118: 'A#7', 119: 'B7',
-  // 120: 'C8'
+  84: 'C5', 85: 'C#5', 86: 'D5', 87: 'D#5', 88: 'E5', 89: 'F5', 90: 'F#5', 91: 'G5', 92: 'G#5', 93: 'A5', 94: 'A#5', 95: 'B5',
+  96: 'C6', 97: 'C#6', 98: 'D6', 99: 'D#6', 100: 'E6', 101: 'F6', 102: 'F#6', 103: 'G6', 104: 'G#6', 105: 'A6', 106: 'A#6', 107: 'B6',
+  108: 'C7', 109: 'C#7', 110: 'D7', 111: 'D#7', 112: 'E7', 113: 'F7', 114: 'F#7', 115: 'G7', 116: 'G#7', 117: 'A7', 118: 'A#7', 119: 'B7',
+  120: 'C8'
 };
 
 declare const navigator: any;
 const Tone = window['Tone'];
+const Recorder = window['Recorder'];
 
 @Component({
   selector: 'app-track',
@@ -30,7 +30,9 @@ export class TrackComponent implements OnInit {
   midiInputs: Array<any>;
   notes: Array<any> = [];
   currentNote;
-  noteTransforms = Object.keys(noteTransforms).map((key) => { return {frequency: key, note: noteTransforms[key]}});
+  noteTransforms = Object.keys(noteTransforms).map((key) => {
+    return {frequency: key, note: noteTransforms[key]};
+  });
 
   audioContext: AudioContext = window['theAudioContext'];
   audioInput = null;
@@ -47,9 +49,12 @@ export class TrackComponent implements OnInit {
   isRecording = false;
   downloadLink;
   downloadFile;
-  synth = null;
-  path = null;
 
+  synth = null;
+  meter = null;
+  path = null;
+  fft = null;
+  waveform = null;
 
   private d3: D3;
   private parentNativeElement: any;
@@ -62,32 +67,89 @@ export class TrackComponent implements OnInit {
     this.d3 = d3Service.getD3();
     this.parentNativeElement = element.nativeElement;
     this.synth = this.initSynth();
+    this.audioRecorder = new Recorder(this.synth);
+
   }
 
   ngOnInit() {
     this.doSomethingClever();
 
-    // this.doSomethingVisual();
+    // this.initMeter();
+    // this.initAnalyzer();
 
     // D3 STUFF
     // this.doSomethingPretty();
-    // this.doSomethingViolent();
     // this.doSomethingRandom();
+  }
 
-    // WAVERIDER STUFF
-    // this.doSomethingWavy();
-    // this.doSomethingMicrophony();
+  toggleRecording() {
+    if (this.isRecording) {
+      // stop recording
+      this.audioRecorder.stop();
+      this.audioRecorder.getBuffers(this.processBuffers.bind(this));
+      this.isRecording = false;
+    } else {
+      // start recording
+      if (!this.audioRecorder) {
+        return;
+      }
+
+      this.isRecording = true;
+      this.audioRecorder.clear();
+      this.audioRecorder.record();
+    }
+  }
+
+  processBuffers(buffers) {
+    let canvas: any = document.getElementById('waveform');
+    this.drawBuffer(canvas.width, canvas.height, canvas.getContext('2d'), buffers[0]);
+
+    this.audioRecorder.exportWAV(this.encode.bind(this));
+  }
+
+  encode(blob) {
+    this.setupDownload(blob, 'myRecording' + ((this.recIndex < 10) ? '0' : '') + this.recIndex + '.wav');
+    this.recIndex++;
+  }
+
+  setupDownload(blob, filename) {
+    let url = (window.URL).createObjectURL(blob);
+    this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(url);
+    this.downloadFile = filename || 'output.wav';
+  }
+
+  drawBuffer(width, height, context, data) {
+    let step = Math.ceil(data.length / width);
+    let amp = height / 2;
+    context.fillStyle = 'silver';
+    context.clearRect(0, 0, width, height);
+    for (let i = 0; i < width; i++) {
+      let min = 1.0;
+      let max = -1.0;
+      for (let j = 0; j < step; j++) {
+        let datum = data[(i * step) + j];
+        if (datum < min) {
+          min = datum;
+        }
+        if (datum > max) {
+          max = datum;
+        }
+      }
+      context.fillRect(i, (1 + min) * amp, 1, Math.max(1, (max - min) * amp));
+    }
   }
 
   // -------------------------------------------------------------------
   // RxJS MIDI with TONEJS
   // -------------------------------------------------------------------
-  noteOff() {
-    this.synth.triggerRelease();
-  }
-
   noteOn(note, velocity) {
     this.synth.triggerAttack(note, null, velocity);
+    // this.synth.triggerAttack(note);
+  }
+
+  noteOff(note) {
+    this.synth.triggerRelease(note);
+    // this.synth.triggerRelease();
   }
 
   getAdjustedNoteHeight(note) {
@@ -95,9 +157,9 @@ export class TrackComponent implements OnInit {
   }
 
   private doSomethingClever() {
-    const midiAccess$   = Observable.fromPromise(navigator.requestMIDIAccess());
-    const stateStream$  = midiAccess$.flatMap(access => this.stateChangeAsObservable(access));
-    const inputStream$  = midiAccess$.map((midi: any) => midi.inputs.values().next().value);
+    const midiAccess$ = Observable.fromPromise(navigator.requestMIDIAccess());
+    const stateStream$ = midiAccess$.flatMap(access => this.stateChangeAsObservable(access));
+    const inputStream$ = midiAccess$.map((midi: any) => midi.inputs.values().next().value);
 
     const messages$ = inputStream$
       .filter(input => input !== undefined)
@@ -127,12 +189,12 @@ export class TrackComponent implements OnInit {
 
   private processNoteTransforms(note) {
     const frequency = note.data[0] + ''; // hack to do strict equality comparison
-    const pressure  = note.data[1];
+    const pressure = note.data[1];
 
     this.noteTransforms
       .forEach(n => {
         if (n.frequency === frequency) {
-          n['active']   = pressure > 0;
+          n['active'] = pressure > 0;
           n['pressure'] = pressure;
         }
       });
@@ -141,7 +203,7 @@ export class TrackComponent implements OnInit {
   private midiMessageReceived(message: any) {
     let cmd = message.status >> 4;
     let channel = message.status & 0xf;
-    let noteNumber = message.data[0];
+    let noteNumber = noteTransforms[message.data[0]];
     let velocity = 0;
     if (message.data.length > 1) {
       velocity = message.data[1] / 120; // needs to be between 0 and 1 and sometimes it is over 100 ¯\_(ツ)_/¯
@@ -149,7 +211,7 @@ export class TrackComponent implements OnInit {
 
     // MIDI noteon with velocity=0 is the same as noteoff
     if (cmd === 8 || ((cmd === 9) && (velocity === 0))) { // noteoff
-      this.noteOff();
+      this.noteOff(noteNumber);
     } else if (cmd === 9) { // note on
       this.noteOn(noteNumber, velocity);
     } else if (cmd === 11) { // controller message
@@ -171,210 +233,179 @@ export class TrackComponent implements OnInit {
     return source.asObservable();
   }
 
+
+
   private initSynth() {
-    return new Tone.MonoSynth({
-      'portamento': 0.01,
-      'oscillator': {
-        'type': 'square'
+    // NOTE: Check out https://github.com/Tonejs/Presets for more tones
+
+    this.meter = new Tone.Meter('level');
+    this.fft = new Tone.Analyser('fft', 32);
+    this.waveform = new Tone.Analyser('waveform', 1024);
+
+    // SYNTH
+    // return new Tone.Synth().toMaster();
+
+    // MONOSYNTH
+    // return new Tone.MonoSynth({
+    //     'portamento': 0.01,
+    //     'oscillator': {
+    //       'type': 'square'
+    //     },
+    //     'envelope': {
+    //       'attack': 0.005,
+    //       'decay': 0.2,
+    //       'sustain': 0.4,
+    //       'release': 1.4,
+    //     },
+    //     'filterEnvelope': {
+    //       'attack': 0.005,
+    //       'decay': 0.1,
+    //       'sustain': 0.05,
+    //       'release': 0.8,
+    //       'baseFrequency': 300,
+    //       'octaves': 4
+    //     }
+    //   }).toMaster();
+
+
+    // POLYSYNTH
+    // return new Tone.PolySynth(6, Tone.Synth, {
+    //   'oscillator' : {
+    //     'partials' : [0, 2, 3, 4],
+    //   }
+    // }).toMaster();
+
+    // FATOSCILLATOR
+    return new Tone.PolySynth(3, Tone.Synth, {
+      'oscillator' : {
+        'type' : 'fatsawtooth',
+        'count' : 3,
+        'spread' : 30
       },
       'envelope': {
-        'attack': 0.005,
-        'decay': 0.2,
-        'sustain': 0.4,
-        'release': 1.4,
-      },
-      'filterEnvelope': {
-        'attack': 0.005,
+        'attack': 0.01,
         'decay': 0.1,
-        'sustain': 0.05,
-        'release': 0.8,
-        'baseFrequency': 300,
-        'octaves': 4
+        'sustain': 0.5,
+        'release': 0.4,
+        'attackCurve' : 'exponential'
+      },
+    })
+      .connect(this.meter)
+      .fan(this.fft, this.waveform)
+      .toMaster();
+  }
+
+  private initAnalyzer() {
+    let fft = this.fft;
+    let waveform = this.waveform;
+
+    let fftElement: any = document.getElementById('fft');
+    let fftContext = fftElement.getContext('2d');
+
+    let waveElement: any = document.getElementById('waveform');
+    let waveContext = waveElement.getContext('2d');
+    let canvasWidth, canvasHeight, waveformGradient;
+
+    function drawFFT(values){
+      fftContext.clearRect(0, 0, canvasWidth, canvasHeight);
+      let barWidth = canvasWidth / fft.size;
+      for (let i = 0, len = values.length; i < len; i++){
+        let val = values[i] / 255;
+        let x = canvasWidth * (i / len);
+        let y = val * canvasHeight;
+        fftContext.fillStyle = 'rgba(0, 0, 0, ' + val + ')';
+        fftContext.fillRect(x, canvasHeight - y, barWidth, canvasHeight);
       }
-    }).toMaster();
-  }
-
-  // -------------------------------------------------------------------
-  // VISUALIZE AND SAVE AUDIO
-  // -------------------------------------------------------------------
-  doSomethingVisual() {
-    let mediaConstraints: any = {
-      audio: {
-        mandatory: {
-          googEchoCancellation: false,
-          googAutoGainControl: false,
-          googNoiseSuppression: false,
-          googHighpassFilter: false
-        },
-        optional: []
-      }
-    };
-
-    navigator.getUserMedia(
-      mediaConstraints,
-      this.gotStream.bind(this),
-      e => console.log(e));
-  }
-
-  saveAudio() {
-    this.audioRecorder.exportWAV(this.doneEncoding.bind(this));
-    // could get mono instead by saying
-    // audioRecorder.exportMonoWAV( doneEncoding );
-  }
-
-  doneEncoding(blob) {
-    this.setupDownload(blob, 'myRecording' + ((this.recIndex < 10) ? '0' : '') + this.recIndex + '.wav');
-    this.recIndex++;
-  }
-
-  setupDownload(blob, filename) {
-    let url = (window.URL).createObjectURL(blob);
-    this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(url);
-    this.downloadFile = filename || 'output.wav';
-  }
-
-  toggleRecording() {
-
-    if (this.isRecording) {
-      // stop recording
-      this.audioRecorder.stop();
-      this.audioRecorder.getBuffers(this.gotBuffers.bind(this));
-      this.isRecording = false;
-    } else {
-      // start recording
-      if (!this.audioRecorder) {
-        return;
-      }
-
-      this.isRecording = true;
-      this.audioRecorder.clear();
-      this.audioRecorder.record();
-    }
-  }
-
-  cancelAnalyserUpdates() {
-    window.cancelAnimationFrame(this.rafID);
-    this.rafID = null;
-  }
-
-  updateAnalysers() {
-    if (!this.analyserContext) {
-      let canvas: any = document.getElementById('analyser');
-      this.canvasWidth = canvas.width;
-      this.canvasHeight = canvas.height;
-      this.analyserContext = canvas.getContext('2d');
     }
 
-    // analyzer draw code here
-    let SPACING = 3;
-    let BAR_WIDTH = 1;
-    let numBars = Math.round(this.canvasWidth / SPACING);
-    let freqByteData = new Uint8Array(this.analyserNode.frequencyBinCount);
+    function drawWaveform(values) {
+      // draw the waveform
+      waveContext.clearRect(0, 0, canvasWidth, canvasHeight);
+      waveContext.beginPath();
+      waveContext.lineJoin = 'round';
+      waveContext.lineWidth = 6;
+      waveContext.strokeStyle = waveformGradient;
+      waveContext.moveTo(0, (values[0] / 255) * canvasHeight);
 
-    this.analyserNode.getByteFrequencyData(freqByteData);
-
-    this.analyserContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
-    this.analyserContext.fillStyle = '#F6D565';
-    this.analyserContext.lineCap = 'round';
-
-    let multiplier = this.analyserNode.frequencyBinCount / numBars;
-
-    // Draw rectangle for each frequency bin.
-    for (let i = 0; i < numBars; ++i) {
-      let magnitude = 0;
-      let offset = Math.floor(i * multiplier);
-      // gotta sum/average the block, or we miss narrow-bandwidth spikes
-      for (let j = 0; j < multiplier; j++) {
-        magnitude += freqByteData[offset + j];
+      for (let i = 1, len = values.length; i < len; i++){
+        let val = values[i] / 255;
+        let x = canvasWidth * (i / len);
+        let y = val * canvasHeight;
+        waveContext.lineTo(x, y);
       }
-      magnitude = magnitude / multiplier;
-      this.analyserContext.fillStyle = 'hsl( ' + Math.round((i * 360) / numBars) + ', 100%, 50%)';
-      this.analyserContext.fillRect(i * SPACING, this.canvasHeight, BAR_WIDTH, -magnitude);
+      waveContext.stroke();
     }
 
-    this.rafID = window.requestAnimationFrame(this.updateAnalysers.bind(this));
-  }
+    function sizeCanvases() {
+      canvasWidth = fftElement.width;
+      canvasHeight = fftElement.height;
 
-  gotStream(stream) {
-    this.inputPoint = this.audioContext.createGain();
+      // THIS MAY BE BROKEN
+      waveContext.canvas.width = canvasWidth;
+      fftContext.canvas.width = canvasWidth;
+      waveContext.canvas.height = canvasHeight;
+      fftContext.canvas.height = canvasHeight;
 
-    // Create an AudioNode from the stream.
-    this.realAudioInput = this.audioContext.createMediaStreamSource(stream);
-    this.audioInput = this.realAudioInput;
-    this.audioInput.connect(this.inputPoint);
-
-    // audioInput = convertToMono( input );
-
-    this.analyserNode = this.audioContext.createAnalyser();
-    this.analyserNode.fftSize = 2048;
-    this.inputPoint.connect(this.analyserNode);
-
-    this.audioRecorder = new window['Recorder'](this.inputPoint);
-
-    this.zeroGain = this.audioContext.createGain();
-    this.zeroGain.gain.value = 0.0;
-    this.inputPoint.connect(this.zeroGain);
-    this.zeroGain.connect(this.audioContext.destination);
-    this.updateAnalysers();
-
-    this.analyserNode = this.audioContext.createAnalyser();
-    this.inputPoint.connect(this.analyserNode);
-    this.analyserNode.fftSize = 2048;
-    this.inputPoint.connect(this.audioContext.destination);
-  }
-
-  gotBuffers(buffers) {
-    let canvas: any = document.getElementById('wavedisplay');
-
-    this.drawBuffer(canvas.width, canvas.height, canvas.getContext('2d'), buffers[0]);
-
-    // the ONLY time gotBuffers is called is right after a new recording is completed -
-    // so here's where we should set up the download.
-    this.audioRecorder.exportWAV(this.doneEncoding.bind(this));
-  }
-
-  drawBuffer(width, height, context, data) {
-    let step = Math.ceil(data.length / width);
-    let amp = height / 2;
-    context.fillStyle = 'silver';
-    context.clearRect(0, 0, width, height);
-    for (let i = 0; i < width; i++) {
-      let min = 1.0;
-      let max = -1.0;
-      for (let j = 0; j < step; j++) {
-        let datum = data[(i * step) + j];
-        if (datum < min) {
-          min = datum;
-        }
-        if (datum > max) {
-          max = datum;
-        }
-      }
-      context.fillRect(i, (1 + min) * amp, 1, Math.max(1, (max - min) * amp));
-    }
-  }
-
-  convertToMono(input) {
-    let splitter = this.audioContext.createChannelSplitter(2);
-    let merger = this.audioContext.createChannelMerger(2);
-
-    input.connect(splitter);
-    splitter.connect(merger, 0, 0);
-    splitter.connect(merger, 0, 1);
-    return merger;
-  }
-
-  toggleMono() {
-    if (this.audioInput !== this.realAudioInput) {
-      this.audioInput.disconnect();
-      this.realAudioInput.disconnect();
-      this.audioInput = this.realAudioInput;
-    } else {
-      this.realAudioInput.disconnect();
-      this.audioInput = this.convertToMono(this.realAudioInput);
+      waveformGradient = waveContext.createLinearGradient(0, 0, canvasWidth, canvasHeight);
+      waveformGradient.addColorStop(0, '#ddd');
+      waveformGradient.addColorStop(1, '#000');
     }
 
-    this.audioInput.connect(this.inputPoint);
+    function loop(){
+      requestAnimationFrame(loop);
+      // get the fft data and draw it
+      let fftValues = fft.analyse();
+      drawFFT(fftValues);
+      // get the waveform valeus and draw it
+      let waveformValues = waveform.analyse();
+      drawWaveform(waveformValues);
+    }
+    
+    window.addEventListener('resize', sizeCanvases);
+
+    sizeCanvases();
+
+    loop();
+  }
+
+  private initMeter() {
+    let canvas: any = document.getElementById('fft');
+    let meterContext = canvas.getContext('2d');
+
+    let meterGradient;
+    let canvasWidth, canvasHeight;
+    let meter = this.meter;
+
+    function drawMeter() {
+      let level = meter.value * 0.8; // scale it since values go above 1 when clipping
+      meterContext.clearRect(0, 0, canvasWidth, canvasHeight);
+      meterContext.fillStyle = meterGradient;
+      meterContext.fillRect(0, 0, canvasWidth, canvasHeight);
+      meterContext.fillStyle = 'white';
+      meterContext.fillRect(canvasWidth * level, 0, canvasWidth, canvasHeight);
+    }
+
+    function sizeCanvases() {
+      canvasWidth = canvas.width;
+      canvasHeight = canvas.height;
+      meterContext.canvas.width = canvasWidth;
+      meterContext.canvas.height = canvasHeight;
+      meterGradient = meterContext.createLinearGradient(0, 0, canvasWidth, canvasHeight);
+      meterGradient.addColorStop(0, '#BFFF02');
+      meterGradient.addColorStop(0.8, '#02FF24');
+      meterGradient.addColorStop(1, '#FF0202');
+    }
+
+    function loop() {
+      requestAnimationFrame(loop);
+      drawMeter();
+    }
+
+    window.addEventListener('resize', sizeCanvases);
+
+    sizeCanvases();
+
+    loop();
   }
 
   // -------------------------------------------------------------------
@@ -492,146 +523,4 @@ export class TrackComponent implements OnInit {
       return points;
     }
   }
-
-  // -------------------------------------------------------------------
-  // D3 CHART
-  // -------------------------------------------------------------------
-  private doSomethingViolent() {
-    let data = [
-      {date: '1-May-12', close: '58.13'},
-      {date: '30-Apr-12', close: '53.98'},
-      {date: '27-Apr-12', close: '67.00'},
-      {date: '26-Apr-12', close: '89.70'},
-      {date: '25-Apr-12', close: '99.00'},
-      {date: '24-Apr-12', close: '130.28'},
-      {date: '23-Apr-12', close: '166.70'},
-      {date: '20-Apr-12', close: '234.98'},
-      {date: '19-Apr-12', close: '345.44'},
-      {date: '18-Apr-12', close: '443.34'},
-      {date: '17-Apr-12', close: '543.70'},
-      {date: '16-Apr-12', close: '580.13'},
-      {date: '13-Apr-12', close: '605.23'},
-      {date: '12-Apr-12', close: '622.77'},
-      {date: '11-Apr-12', close: '626.20'},
-      {date: '10-Apr-12', close: '628.44'},
-      {date: '9-Apr-12', close: '636.23'},
-      {date: '5-Apr-12', close: '633.68'},
-      {date: '4-Apr-12', close: '624.31'},
-      {date: '3-Apr-12', close: '629.32'},
-      {date: '2-Apr-12', close: '618.63'},
-      {date: '30-Mar-12', close: '599.55'},
-      {date: '29-Mar-12', close: '609.86'},
-      {date: '28-Mar-12', close: '617.62'},
-      {date: '27-Mar-12', close: '614.48'},
-      {date: '26-Mar-12', close: '606.98'},
-    ];
-
-    let d3 = this.d3;
-
-    // set the dimensions and margins of the graph
-    let margin = {top: 20, right: 20, bottom: 30, left: 50},
-      width = 960 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom;
-
-    // parse the date / time
-    let parseTime = d3.timeParse('%d-%b-%y');
-
-    // set the ranges
-    let x = d3.scaleTime().range([0, width]);
-    let y = d3.scaleLinear().range([height, 0]);
-
-    // define the line
-    let valueline: any = d3.line()
-      .x((d: any) => x(d.date))
-      .y((d: any) => y(d.close));
-
-    // append the svg obgect to the body of the page
-    // appends a 'group' element to 'svg'
-    // moves the 'group' element to the top left margin
-    let svg = d3.select(this.parentNativeElement)
-      .append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-      .append('g')
-      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
-    // format the data
-    data.forEach((d: any) => {
-      d.date = parseTime(d.date);
-      d.close = +d.close;
-    });
-
-    // Scale the range of the data
-    x.domain(d3.extent(data, (d: any) => d.date));
-    y.domain([0, d3.max(data, (d: any) => d.close)]);
-
-    // Add the valueline path.
-    svg.append('path')
-      .data([data])
-      .attr('class', 'line')
-      .attr('d', valueline);
-
-    // Add the X Axis
-    svg.append('g')
-      .attr('transform', 'translate(0,' + height + ')')
-      .call(d3.axisBottom(x));
-
-    // Add the Y Axis
-    svg.append('g')
-      .call(d3.axisLeft(y));
-  }
-
-  // -------------------------------------------------------------------
-  // WAVE SURFER BASIC
-  // -------------------------------------------------------------------
-  private doSomethingWavy() {
-    let wavesurfer = window['WaveSurfer'].create({
-      container: '#waveform',
-      waveColor: 'violet',
-      progressColor: 'purple'
-    });
-
-    wavesurfer.load('assets/audio/TellMeHow.mp3');
-  }
-
-  // -------------------------------------------------------------------
-  // WAVE SURFER MIC
-  // -------------------------------------------------------------------
-  private doSomethingMicrophony() {
-    let wavesurfer = window['WaveSurfer'].create({
-      container: '#waveform',
-      waveColor: 'violet'
-    });
-
-    let microphone = Object.create(window['WaveSurfer'].Microphone);
-
-    microphone.init({
-      wavesurfer: wavesurfer
-    });
-
-    microphone.on('deviceReady', function (stream) {
-      console.log('Device ready!', stream);
-    });
-    microphone.on('deviceError', function (code) {
-      console.warn('Device error: ' + code);
-    });
-
-    // pause rendering
-    //microphone.pause();
-
-    // resume rendering
-    //microphone.play();
-
-    // stop visualization and disconnect microphone
-    //microphone.stopDevice();
-
-    // same as stopDevice() but also clears the wavesurfer canvas
-    //microphone.stop();
-
-    // destroy the plugin
-    //microphone.destroy();
-
-    microphone.start();
-  }
-
 }

@@ -9,21 +9,14 @@ import { HttpModule } from '@angular/http';
 import { D3Service } from 'd3-ng2-service';
 
 import { AppComponent } from './app.component';
-import { ControlPanelComponent } from './control-panel/control-panel.component';
 
-import { AudioOutputService, MidiInputService, PipelineService, SynthesisService } from './services';
-
-import { PianoKeyboardComponent } from './keyboard';
 import { MnFullpageDirective, MnFullpageService } from 'ng2-fullpage';
 import { TrackComponent } from './track/track.component';
-import { SynthStreamWrapper } from './services/synth-stream-wrapper';
 
 @NgModule({
   declarations: [
     AppComponent,
     MnFullpageDirective,
-    PianoKeyboardComponent,
-    ControlPanelComponent,
     TrackComponent
   ],
   imports: [
@@ -33,12 +26,7 @@ import { SynthStreamWrapper } from './services/synth-stream-wrapper';
   ],
   providers: [
     D3Service,
-    MnFullpageService,
-    MidiInputService,
-    AudioOutputService,
-    SynthesisService,
-    PipelineService,
-    SynthStreamWrapper
+    MnFullpageService
   ],
   bootstrap: [AppComponent]
 })

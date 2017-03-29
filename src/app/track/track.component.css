@@ -10,6 +10,7 @@ pre div:not(:first-child) span {
   margin-top: -50px;
 }
 
+/*
 canvas {
   display: inline-block;
   background: #202020;
@@ -17,6 +18,8 @@ canvas {
   height: 200px;
   box-shadow: 0px 0px 10px blue;
 }
+*/
+
 #controls {
   display: flex;
   flex-direction: row;

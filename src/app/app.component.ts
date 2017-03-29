@@ -1,6 +1,5 @@
 import { Component, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { MnFullpageOptions, MnFullpageService } from 'ng2-fullpage';
-import { PipelineService } from './services/pipeline/pipeline.service';
 
 @Component({
   selector: 'app-root',
@@ -44,7 +43,7 @@ export class AppComponent implements OnInit {
     service: require('raw!./templates/service.template.txt'),
   };
 
-  constructor(private pipelineService: PipelineService) { }
+  constructor() { }
 
   ngOnInit() {
   }
