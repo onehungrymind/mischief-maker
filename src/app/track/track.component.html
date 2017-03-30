@@ -37,15 +37,31 @@
   <button (click)="toggleRecording()" #recordBtn ngClass="{'recording':isRecording}">{{isRecording ? 'Stop Recording': 'Start Recording'}}</button>
   <a [href]="downloadLink" [download]="downloadFile">Save</a>
 </div>
+
+<canvas id="fft" width="1024" height="200"></canvas>
 -->
 
 <!-- PENDING -->
-<canvas id="fft" width="1024" height="200"></canvas>
-<canvas id="waveform" width="1024" height="200"></canvas>
+<div id="waveforms">
+  <canvas id="waveform" width="1024" height="200"></canvas>
+</div>
 
 <div id="controls">
-  <button (click)="toggleRecording()" #recordBtn ngClass="{'recording':isRecording}">{{isRecording ? 'Stop Recording': 'Start Recording'}}</button>
-  <a [href]="downloadLink" [download]="downloadFile">Save</a>
+  <figure (click)="toggleRecording()">
+    <div>
+      <span>{{isRecording ? 'Stop Recording': 'Start Recording'}}</span>
+      <span>{{isRecording ? 'Stop Recording': 'Start Recording'}}</span>
+    </div>
+  </figure>
+
+  <figure>
+    <div>
+      <span>Save</span>
+      <span>Save</span>
+    </div>
+  </figure>
+
+  <!-- <a [href]="downloadLink" [download]="downloadFile">Save</a> -->
 </div>
 
 <!-- PENDING

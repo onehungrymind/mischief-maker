@@ -1,0 +1,9 @@
+.messages-container {
+    overflow: auto;
+    height: 500px;
+}
+
+.messages-container div {
+    display: inline-block;
+    padding: 0 10px;
+}

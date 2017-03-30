@@ -14,18 +14,42 @@ $section-degree: 180deg;
 $section-first-color: rgb(33, 33, 33);
 $section-second-color: rgb(60, 63, 65);
 
+$orange: #f2842f;
+$pink: #d23258;
+$blue: #46a8d7;
+$purple: #814f98;
+
+$primary-color: $pink;
+$secondary-color: $purple;
 
 body {
   font-family: 'Titillium Web', Arial sans-serif;
-  color: $body-color;
+  color: $primary-color;
 }
+
+.orange {
+  color: #f2842f;
+}
+
+.pink {
+  color: #d23258;
+}
+
+.blue {
+  color: #46a8d7;
+}
+
+.purple {
+  color: #814f98;
+}
+
 
 h1, h2, h3, h4, h5, h6 {
   font-weight: normal;
   font-size: 100%;
   margin: 0;
   padding: 0;
-  color: #ff8cc3;
+  color: #d23258;
 }
 
 h1 {
@@ -135,6 +159,70 @@ button {
   padding: 7px 50px;
   border-color: white;
   background: rgba(255, 255, 255, 0.1);
+}
+
+
+#viz {
+  height: 800px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+#controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  height: 20%;
+  width: 100%;
+}
+
+figure {
+  width: 240px;
+  height: 60px;
+  cursor: pointer;
+  perspective: 500px;
+  -webkit-perspective: 500px;
+}
+
+figure div {
+  height: 100%;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  transition: 0.25s;
+  -webkit-transition: 0.25s;
+}
+
+figure:hover div {
+  transform: rotateX(-90deg);
+}
+
+span {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  box-sizing: border-box;
+  border: 5px solid $primary-color;
+  line-height: 50px;
+  font-size: 17pt;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+span:nth-child(1) {
+  color: $primary-color;
+  transform: translate3d(0, 0, 30px);
+  -webkit-transform: translate3d(0, 0, 30px);
+}
+
+span:nth-child(2) {
+  color: $section-first-color;
+  background-color: $primary-color;
+  transform: rotateX(90deg) translate3d(0, 0, 30px);
+  -webkit-transform: rotateX(90deg) translate3d(0, 0, 30px);
 }
 
 

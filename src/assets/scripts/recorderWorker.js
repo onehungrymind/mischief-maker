@@ -39,6 +39,9 @@ this.onmessage = function(e){
     case 'getBuffers':
       getBuffers();
       break;
+    case 'getRawBuffers':
+      getRawBuffers();
+      break;
     case 'clear':
       clear();
       break;

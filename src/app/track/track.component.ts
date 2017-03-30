@@ -72,14 +72,7 @@ export class TrackComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.doSomethingClever();
-
-    // this.initMeter();
-    this.initAnalyzer();
-
-    // D3 STUFF
-    // this.doSomethingPretty();
-    // this.doSomethingRandom();
+    this.initMidiInput();
   }
 
   toggleRecording() {
@@ -156,7 +149,7 @@ export class TrackComponent implements OnInit {
     return `${50 + note.pressure / 2.5}%`;
   }
 
-  private doSomethingClever() {
+  private initMidiInput() {
     const midiAccess$ = Observable.fromPromise(navigator.requestMIDIAccess());
     const stateStream$ = midiAccess$.flatMap(access => this.stateChangeAsObservable(access));
     const inputStream$ = midiAccess$.map((midi: any) => midi.inputs.values().next().value);
@@ -235,8 +228,6 @@ export class TrackComponent implements OnInit {
     return source.asObservable();
   }
 
-
-
   private initSynth() {
     // NOTE: Check out https://github.com/Tonejs/Presets for more tones
 
@@ -292,83 +283,14 @@ export class TrackComponent implements OnInit {
         'attackCurve' : 'exponential'
       },
     })
-      .connect(this.meter)
-      .fan(this.fft, this.waveform)
+      // .connect(this.meter)
+      // .fan(this.fft, this.waveform)
       .toMaster();
   }
 
-  private initAnalyzer() {
-    let fft = this.fft;
-    let waveform = this.waveform;
-
-    let fftElement: any = document.getElementById('fft');
-    let fftContext = fftElement.getContext('2d');
-
-    let waveElement: any = document.getElementById('waveform');
-    let waveContext = waveElement.getContext('2d');
-    let canvasWidth, canvasHeight, waveformGradient;
-
-    function drawFFT(values){
-      fftContext.clearRect(0, 0, canvasWidth, canvasHeight);
-      let barWidth = canvasWidth / fft.size;
-      for (let i = 0, len = values.length; i < len; i++){
-        let val = values[i] / 255;
-        let x = canvasWidth * (i / len);
-        let y = val * canvasHeight;
-        fftContext.fillStyle = 'rgba(255, 140, 195, ' + val + ')';
-        fftContext.fillRect(x, canvasHeight - y, barWidth, canvasHeight);
-      }
-    }
-
-    function drawWaveform(values) {
-      // draw the waveform
-      waveContext.clearRect(0, 0, canvasWidth, canvasHeight);
-      waveContext.beginPath();
-      waveContext.lineJoin = 'round';
-      waveContext.lineWidth = 6;
-      waveContext.strokeStyle = waveformGradient;
-      waveContext.moveTo(0, (values[0] / 255) * canvasHeight);
-
-      for (let i = 1, len = values.length; i < len; i++){
-        let val = values[i] / 255;
-        let x = canvasWidth * (i / len);
-        let y = val * canvasHeight;
-        waveContext.lineTo(x, y);
-      }
-      waveContext.stroke();
-    }
-
-    function sizeCanvases() {
-      canvasWidth = fftElement.width;
-      canvasHeight = fftElement.height;
-
-      // THIS MAY BE BROKEN
-      waveContext.canvas.width = canvasWidth;
-      fftContext.canvas.width = canvasWidth;
-      waveContext.canvas.height = canvasHeight;
-      fftContext.canvas.height = canvasHeight;
-
-      waveformGradient = waveContext.createLinearGradient(0, 0, canvasWidth, canvasHeight);
-      waveformGradient.addColorStop(0, '#ff8cc3');
-      waveformGradient.addColorStop(1, '#ffb5ef');
-    }
-
-    function loop(){
-      requestAnimationFrame(loop);
-      // get the fft data and draw it
-      let fftValues = fft.analyse();
-      drawFFT(fftValues);
-      // get the waveform valeus and draw it
-      let waveformValues = waveform.analyse();
-      drawWaveform(waveformValues);
-    }
-    
-    window.addEventListener('resize', sizeCanvases);
-
-    sizeCanvases();
-
-    loop();
-  }
+  // -------------------------------------------------------------------
+  // METER STYLE VISUALIZATION
+  // -------------------------------------------------------------------
 
   private initMeter() {
     let canvas: any = document.getElementById('fft');
