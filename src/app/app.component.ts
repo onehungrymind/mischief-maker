@@ -19,8 +19,8 @@ export class AppComponent implements OnInit {
     menu: '.menu',
     css3: true,
     anchors: [
-      'intro', 'connect', 'capture', 'interpret',
-      'display', 'record', 'replay', 'layer',
+      'intro', 'connect', 'capture', 'convert',
+      'play', 'record', 'replay', 'layer',
       'visualize', 'finale'
     ]
   });

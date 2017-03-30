@@ -12,12 +12,24 @@ import { AppComponent } from './app.component';
 
 import { MnFullpageDirective, MnFullpageService } from 'ng2-fullpage';
 import { TrackComponent } from './track/track.component';
+import { DevicesComponent } from './devices/devices.component';
+import { MessagesComponent } from './messages/messages.component';
+import { NotesComponent } from './notes/notes.component';
+import { SynthComponent } from './synth/synth.component';
+import { RecordComponent } from './record/record.component';
+import { WorkspaceComponent } from './workspace/workspace.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     MnFullpageDirective,
-    TrackComponent
+    TrackComponent,
+    DevicesComponent,
+    MessagesComponent,
+    NotesComponent,
+    SynthComponent,
+    RecordComponent,
+    WorkspaceComponent
   ],
   imports: [
     BrowserModule,

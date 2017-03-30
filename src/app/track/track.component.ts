@@ -75,7 +75,7 @@ export class TrackComponent implements OnInit {
     this.doSomethingClever();
 
     // this.initMeter();
-    // this.initAnalyzer();
+    this.initAnalyzer();
 
     // D3 STUFF
     // this.doSomethingPretty();
@@ -160,6 +160,8 @@ export class TrackComponent implements OnInit {
     const midiAccess$ = Observable.fromPromise(navigator.requestMIDIAccess());
     const stateStream$ = midiAccess$.flatMap(access => this.stateChangeAsObservable(access));
     const inputStream$ = midiAccess$.map((midi: any) => midi.inputs.values().next().value);
+
+    // .do((midi: any) => console.log('INPUTS', Array.from(midi.inputs)))
 
     const messages$ = inputStream$
       .filter(input => input !== undefined)
@@ -313,7 +315,7 @@ export class TrackComponent implements OnInit {
         let val = values[i] / 255;
         let x = canvasWidth * (i / len);
         let y = val * canvasHeight;
-        fftContext.fillStyle = 'rgba(0, 0, 0, ' + val + ')';
+        fftContext.fillStyle = 'rgba(255, 140, 195, ' + val + ')';
         fftContext.fillRect(x, canvasHeight - y, barWidth, canvasHeight);
       }
     }
@@ -347,8 +349,8 @@ export class TrackComponent implements OnInit {
       fftContext.canvas.height = canvasHeight;
 
       waveformGradient = waveContext.createLinearGradient(0, 0, canvasWidth, canvasHeight);
-      waveformGradient.addColorStop(0, '#ddd');
-      waveformGradient.addColorStop(1, '#000');
+      waveformGradient.addColorStop(0, '#ff8cc3');
+      waveformGradient.addColorStop(1, '#ffb5ef');
     }
 
     function loop(){
