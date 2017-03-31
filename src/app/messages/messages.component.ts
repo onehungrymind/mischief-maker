@@ -24,8 +24,8 @@ export class MessagesComponent implements OnInit {
 
     const midiAccess$ = Observable.fromPromise(navigator.requestMIDIAccess());
     const stateStream$ = midiAccess$.flatMap(access => this.stateChangeAsObservable(access));
-    const inputStream$ = midiAccess$
-      .map((midi: any) => midi.inputs.get(midiID));
+    // const inputStream$ = midiAccess$.map((midi: any) => midi.inputs.get(midiID));
+    const inputStream$ = midiAccess$.map((midi: any) => midi.inputs.values().next().value);
 
     const messages$ = inputStream$
       .filter(input => input !== undefined)
