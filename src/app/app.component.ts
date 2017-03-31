@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { MnFullpageOptions, MnFullpageService } from 'ng2-fullpage';
+window['Tone'] = require('tone/build/Tone');
 
 @Component({
   selector: 'app-root',
