@@ -7,6 +7,8 @@
 
 <!-- CAPTURE -->
 <h1>{{currentNote}}</h1>
+<!-- Audio is controlled by play button at bottom of page -->
+<audio (canplay)="allowPlayback()" #audio controls [src]="downloadLink"></audio>
 
 <!-- CAPTURE
 <pre>
@@ -53,6 +55,15 @@
       <span>{{isRecording ? 'Stop Recording': 'Start Recording'}}</span>
     </div>
   </figure>
+
+  <!-- Begin play button -->
+  <figure (click)="togglePlayback()">
+    <div>
+      <span>{{audio.paused ? 'Play': 'Pause'}}</span>
+      <span>{{audio.paused ? 'Play': 'Pause'}}</span>
+    </div>
+  </figure>
+  <!-- End play button -->
 
   <figure>
     <div>

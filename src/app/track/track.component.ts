@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { D3, D3Service } from 'd3-ng2-service';
 
 import { DomSanitizer } from '@angular/platform-browser';
@@ -27,6 +27,11 @@ const Recorder = window['Recorder'];
   styleUrls: ['./track.component.css']
 })
 export class TrackComponent implements OnInit {
+  // Begin playback members
+  @ViewChild('audio') audio;
+  playable: Boolean = false;
+  // End playback members
+
   midiInputs: Array<any>;
   notes: Array<any> = [];
   currentNote;
@@ -74,6 +79,22 @@ export class TrackComponent implements OnInit {
   ngOnInit() {
     this.initMidiInput();
   }
+
+  // Begin playback methods
+  allowPlayback() {
+    this.playable = true;
+  }
+
+  togglePlayback() {
+    if (!this.playable) {
+      return;
+    } else if (this.audio.nativeElement.paused) {
+      this.audio.nativeElement.play();
+    } else {
+      this.audio.nativeElement.pause();
+    }
+  }
+  // End playback methods
 
   toggleRecording() {
     if (this.isRecording) {
