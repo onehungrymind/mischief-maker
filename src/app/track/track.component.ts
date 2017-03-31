@@ -269,7 +269,7 @@ export class TrackComponent implements OnInit {
     // }).toMaster();
 
     // FATOSCILLATOR
-    return new Tone.PolySynth(3, Tone.Synth, {
+    return new Tone.PolySynth(6, Tone.Synth, {
       'oscillator' : {
         'type' : 'fatsawtooth',
         'count' : 3,
