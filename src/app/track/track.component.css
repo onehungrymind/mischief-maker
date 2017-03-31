@@ -15,12 +15,11 @@ pre div:not(:first-child) span {
   justify-content: space-around;
   align-items: flex-end;
   height: 300px;
-  background-color: rgba(0, 0, 0, 0.5);
   overflow: hidden;
 }
 
 .bar {
-  background: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.1);
   height: 50%;
   flex: 1 1 100%;
   margin-left: 3px;
@@ -33,7 +32,7 @@ pre div:not(:first-child) span {
 }
 
 .bar.active {
-  background-color: rgba(255,255,255,0.7);
+  background-color: rgba(255,255,255,0.3);
 }
 
 a.invisible {
