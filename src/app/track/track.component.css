@@ -10,10 +10,6 @@ pre div:not(:first-child) span {
   margin-top: -50px;
 }
 
-.recording {
-  border: 2px red solid;
-}
-
 .visualization {
   display: flex;
   justify-content: space-around;

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit } from '@angular/core';
 import { D3, D3Service } from 'd3-ng2-service';
 
 import { DomSanitizer } from '@angular/platform-browser';
@@ -20,6 +20,7 @@ const noteTransforms = {
 declare const navigator: any;
 const Tone = window['Tone'];
 const Recorder = window['Recorder'];
+const WaveSurfer = window['WaveSurfer'];
 
 @Component({
   selector: 'app-track',
@@ -27,12 +28,6 @@ const Recorder = window['Recorder'];
   styleUrls: ['./track.component.css']
 })
 export class TrackComponent implements OnInit {
-  // Begin playback members
-  @ViewChild('audio') audio;
-  playable: Boolean = false;
-  // End playback members
-
-  midiInputs: Array<any>;
   notes: Array<any> = [];
   currentNote;
   noteTransforms = Object.keys(noteTransforms).map((key) => {
@@ -40,7 +35,6 @@ export class TrackComponent implements OnInit {
   });
 
   isRecording = false;
-  audioContext: AudioContext = window['theAudioContext'];
   audioRecorder = null;
   recIndex = 0;
   downloadLink;
@@ -51,6 +45,8 @@ export class TrackComponent implements OnInit {
   path = null;
   fft = null;
   waveform = null;
+
+  wavesurfer = null;
 
   private d3: D3;
   private parentNativeElement: any;
@@ -63,28 +59,18 @@ export class TrackComponent implements OnInit {
     this.parentNativeElement = element.nativeElement;
     this.synth = this.initSynth();
     this.audioRecorder = new Recorder(this.synth);
-
   }
 
   ngOnInit() {
     this.initMidiInput();
-  }
 
-  // Begin playback methods
-  allowPlayback() {
-    this.playable = true;
+    this.wavesurfer = WaveSurfer.create({
+      container: '#trackwave',
+      scrollParent: true,
+      waveColor: 'violet',
+      progressColor: 'purple'
+    });
   }
-
-  togglePlayback() {
-    if (!this.playable) {
-      return;
-    } else if (this.audio.nativeElement.paused) {
-      this.audio.nativeElement.play();
-    } else {
-      this.audio.nativeElement.pause();
-    }
-  }
-  // End playback methods
 
   toggleRecording() {
     if (this.isRecording) {
@@ -105,8 +91,8 @@ export class TrackComponent implements OnInit {
   }
 
   processBuffers(buffers) {
-    let canvas: any = document.getElementById('replay-waveform');
-    this.drawBuffer(canvas.width, canvas.height, canvas.getContext('2d'), buffers[0]);
+    // let canvas: any = document.getElementById('replay-waveform');
+    // this.drawBuffer(canvas.width, canvas.height, canvas.getContext('2d'), buffers[0]);
 
     this.audioRecorder.exportWAV(this.encode.bind(this));
   }
@@ -120,6 +106,9 @@ export class TrackComponent implements OnInit {
     let url = (window.URL).createObjectURL(blob);
     this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(url);
     this.downloadFile = filename || 'output.wav';
+
+    // Now that we have a blob... spin up wavesurfer
+    this.wavesurfer.loadBlob(blob);
   }
 
   drawBuffer(width, height, context, data) {

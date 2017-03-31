@@ -18,6 +18,7 @@ const noteTransforms = {
 declare const navigator: any;
 const Tone = window['Tone'];
 const Recorder = window['Recorder'];
+const WaveSurfer = window['WaveSurfer'];
 
 @Component({
   selector: 'app-record',
@@ -37,7 +38,7 @@ export class RecordComponent implements OnInit {
     return {frequency: key, note: noteTransforms[key]};
   });
 
-  context = window['theAudioContext'];
+  wavesurfer = null;
 
   constructor(
     private cd: ChangeDetectorRef,
@@ -49,6 +50,13 @@ export class RecordComponent implements OnInit {
 
   ngOnInit() {
     this.initMidiInput();
+
+    this.wavesurfer = WaveSurfer.create({
+      container: '#recordwave',
+      scrollParent: true,
+      waveColor: 'violet',
+      progressColor: 'purple'
+    });
   }
 
   toggleRecording() {
@@ -70,8 +78,8 @@ export class RecordComponent implements OnInit {
   }
 
   processBuffers(buffers) {
-    let canvas: any = document.getElementById('record-waveform');
-    this.drawBuffer(canvas.width, canvas.height, canvas.getContext('2d'), buffers[0]);
+    // let canvas: any = document.getElementById('record-waveform');
+    // this.drawBuffer(canvas.width, canvas.height, canvas.getContext('2d'), buffers[0]);
 
     this.audioRecorder.exportWAV(this.encode.bind(this));
   }
@@ -85,6 +93,9 @@ export class RecordComponent implements OnInit {
     let url = (window.URL).createObjectURL(blob);
     this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(url);
     this.downloadFile = filename || 'output.wav';
+
+    // Now that we have a blob... spin up wavesurfer
+    this.wavesurfer.loadBlob(blob);
   }
 
   drawBuffer(width, height, context, data) {
