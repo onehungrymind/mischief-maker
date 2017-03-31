@@ -45,7 +45,7 @@
 
 <!-- PENDING -->
 <div id="waveforms">
-  <canvas id="waveform" width="1024" height="200"></canvas>
+  <canvas id="replay-waveform" width="1024" height="200"></canvas>
 </div>
 
 <div id="controls">
@@ -65,14 +65,14 @@
   </figure>
   <!-- End play button -->
 
-  <figure>
-    <div>
-      <span>Save</span>
-      <span>Save</span>
-    </div>
-  </figure>
-
-  <!-- <a [href]="downloadLink" [download]="downloadFile">Save</a> -->
+  <a class="invisible" [href]="downloadLink" [download]="downloadFile">
+    <figure>
+      <div>
+        <span>Save</span>
+        <span>Save</span>
+      </div>
+    </figure>
+  </a>
 </div>
 
 <!-- PENDING

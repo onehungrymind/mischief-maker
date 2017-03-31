@@ -186,45 +186,44 @@ figure {
   cursor: pointer;
   perspective: 500px;
   -webkit-perspective: 500px;
-}
 
-figure div {
-  height: 100%;
-  transform-style: preserve-3d;
-  -webkit-transform-style: preserve-3d;
-  transition: 0.25s;
-  -webkit-transition: 0.25s;
+  div {
+    height: 100%;
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    transition: 0.25s;
+    -webkit-transition: 0.25s;
+  }
+
+  span {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    box-sizing: border-box;
+    border: 5px solid $primary-color;
+    line-height: 50px;
+    font-size: 17pt;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  span:nth-child(1) {
+    color: $primary-color;
+    transform: translate3d(0, 0, 30px);
+    -webkit-transform: translate3d(0, 0, 30px);
+  }
+
+  span:nth-child(2) {
+    color: $section-first-color;
+    background-color: $primary-color;
+    transform: rotateX(90deg) translate3d(0, 0, 30px);
+    -webkit-transform: rotateX(90deg) translate3d(0, 0, 30px);
+  }
 }
 
 figure:hover div {
   transform: rotateX(-90deg);
 }
-
-span {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  box-sizing: border-box;
-  border: 5px solid $primary-color;
-  line-height: 50px;
-  font-size: 17pt;
-  text-align: center;
-  text-transform: uppercase;
-}
-
-span:nth-child(1) {
-  color: $primary-color;
-  transform: translate3d(0, 0, 30px);
-  -webkit-transform: translate3d(0, 0, 30px);
-}
-
-span:nth-child(2) {
-  color: $section-first-color;
-  background-color: $primary-color;
-  transform: rotateX(90deg) translate3d(0, 0, 30px);
-  -webkit-transform: rotateX(90deg) translate3d(0, 0, 30px);
-}
-
 
 /* SECTION STYLES */
 .fp-section {

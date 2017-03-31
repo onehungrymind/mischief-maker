@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs';
@@ -37,8 +37,6 @@ export class RecordComponent implements OnInit {
     return {frequency: key, note: noteTransforms[key]};
   });
 
-
-  buf = null;
   context = window['theAudioContext'];
 
   constructor(
@@ -47,9 +45,6 @@ export class RecordComponent implements OnInit {
   ) {
     this.synth = this.initSynth();
     this.audioRecorder = new Recorder(this.synth);
-    
-    
-    console.log('THIS SYNTH', this.synth);
   }
 
   ngOnInit() {
@@ -79,10 +74,6 @@ export class RecordComponent implements OnInit {
     this.drawBuffer(canvas.width, canvas.height, canvas.getContext('2d'), buffers[0]);
 
     this.audioRecorder.exportWAV(this.encode.bind(this));
-  }
-
-  midiToFrequency(note) {
-    return 440 * Math.pow(2, (note - 69) / 12);
   }
 
   encode(blob) {
@@ -126,6 +117,11 @@ export class RecordComponent implements OnInit {
 
   noteOff(note) {
     this.synth.triggerRelease(note);
+  }
+
+  // Convenience method - will use it for something
+  midiToFrequency(note) {
+    return 440 * Math.pow(2, (note - 69) / 12);
   }
 
   private initMidiInput() {
@@ -219,7 +215,6 @@ export class RecordComponent implements OnInit {
         'release': 0.4,
         'attackCurve' : 'exponential'
       },
-    })
-      .toMaster();
+    }).toMaster();
   }
 }

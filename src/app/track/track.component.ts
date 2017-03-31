@@ -39,19 +39,10 @@ export class TrackComponent implements OnInit {
     return {frequency: key, note: noteTransforms[key]};
   });
 
-  audioContext: AudioContext = window['theAudioContext'];
-  audioInput = null;
-  realAudioInput = null;
-  inputPoint = null;
-  audioRecorder = null;
-  rafID = null;
-  analyserContext = null;
-  analyserNode;
-  canvasWidth;
-  canvasHeight;
-  zeroGain;
-  recIndex = 0;
   isRecording = false;
+  audioContext: AudioContext = window['theAudioContext'];
+  audioRecorder = null;
+  recIndex = 0;
   downloadLink;
   downloadFile;
 
@@ -63,7 +54,6 @@ export class TrackComponent implements OnInit {
 
   private d3: D3;
   private parentNativeElement: any;
-
 
   constructor(private cd: ChangeDetectorRef,
               private sanitizer: DomSanitizer,
@@ -115,7 +105,7 @@ export class TrackComponent implements OnInit {
   }
 
   processBuffers(buffers) {
-    let canvas: any = document.getElementById('waveform');
+    let canvas: any = document.getElementById('replay-waveform');
     this.drawBuffer(canvas.width, canvas.height, canvas.getContext('2d'), buffers[0]);
 
     this.audioRecorder.exportWAV(this.encode.bind(this));
