@@ -75,7 +75,7 @@ export class WorkspaceComponent implements OnInit {
     if (this.isRecording) {
       // stop recording
       this.audioRecorder.stop();
-      this.audioRecorder.getBuffers(this.processBuffers.bind(this));
+      this.audioRecorder.getBuffers(this.onBuffersProcessed.bind(this));
       this.isRecording = false;
     } else {
       // start recording
@@ -89,7 +89,7 @@ export class WorkspaceComponent implements OnInit {
     }
   }
 
-  processBuffers(buffers) {
+  onBuffersProcessed(buffers) {
     this.audioRecorder.exportWAV(this.onEncoded.bind(this));
   }
 
@@ -115,12 +115,10 @@ export class WorkspaceComponent implements OnInit {
   // -------------------------------------------------------------------
   noteOn(note, velocity) {
     this.synth.triggerAttack(note, null, velocity);
-    // this.synth.triggerAttack(note);
   }
 
   noteOff(note) {
     this.synth.triggerRelease(note);
-    // this.synth.triggerRelease();
   }
 
   getAdjustedNoteHeight(note) {
@@ -131,8 +129,6 @@ export class WorkspaceComponent implements OnInit {
     const midiAccess$ = Observable.fromPromise(navigator.requestMIDIAccess());
     const stateStream$ = midiAccess$.flatMap(access => this.stateChangeAsObservable(access));
     const inputStream$ = midiAccess$.map((midi: any) => midi.inputs.values().next().value);
-
-    // .do((midi: any) => console.log('INPUTS', Array.from(midi.inputs)))
 
     const messages$ = inputStream$
       .filter(input => input !== undefined)
@@ -261,169 +257,6 @@ export class WorkspaceComponent implements OnInit {
         'attackCurve' : 'exponential'
       },
     })
-    // .connect(this.meter)
-    // .fan(this.fft, this.waveform)
       .toMaster();
   }
-
-  // -------------------------------------------------------------------
-  // METER STYLE VISUALIZATION
-  // -------------------------------------------------------------------
-
-  private initMeter() {
-    let canvas: any = document.getElementById('fft');
-    let meterContext = canvas.getContext('2d');
-
-    let meterGradient;
-    let canvasWidth, canvasHeight;
-    let meter = this.meter;
-
-    function drawMeter() {
-      let level = meter.value * 0.8; // scale it since values go above 1 when clipping
-      meterContext.clearRect(0, 0, canvasWidth, canvasHeight);
-      meterContext.fillStyle = meterGradient;
-      meterContext.fillRect(0, 0, canvasWidth, canvasHeight);
-      meterContext.fillStyle = 'white';
-      meterContext.fillRect(canvasWidth * level, 0, canvasWidth, canvasHeight);
-    }
-
-    function sizeCanvases() {
-      canvasWidth = canvas.width;
-      canvasHeight = canvas.height;
-      meterContext.canvas.width = canvasWidth;
-      meterContext.canvas.height = canvasHeight;
-      meterGradient = meterContext.createLinearGradient(0, 0, canvasWidth, canvasHeight);
-      meterGradient.addColorStop(0, '#BFFF02');
-      meterGradient.addColorStop(0.8, '#02FF24');
-      meterGradient.addColorStop(1, '#FF0202');
-    }
-
-    function loop() {
-      requestAnimationFrame(loop);
-      drawMeter();
-    }
-
-    window.addEventListener('resize', sizeCanvases);
-
-    sizeCanvases();
-
-    loop();
-  }
-
-  // -------------------------------------------------------------------
-  // D3 VISUALIZATION
-  // -------------------------------------------------------------------
-  private doSomethingPretty() {
-    let d3 = this.d3;
-
-    // set the dimensions and margins of the graph
-    let margin = {top: 20, right: 20, bottom: 30, left: 50},
-      width = 960 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom,
-      angles = d3.range(0, 2 * Math.PI, Math.PI / 200);
-
-    let svg = d3.select(this.parentNativeElement)
-      .append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom);
-
-    this.path = svg.append('g')
-      .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
-      .attr('fill', 'none')
-      .attr('stroke-width', 10)
-      .attr('stroke-linejoin', 'round')
-      .selectAll('path')
-      .data(['cyan', 'magenta', 'yellow'])
-      .enter().append('path')
-      .attr('stroke', function (d) {
-        return d;
-      })
-      .style('mix-blend-mode', 'darken')
-      .datum(function (d, i) {
-        return d3.radialLine()
-          .curve(d3.curveLinearClosed)
-          .angle((a: any) => a)
-          .radius((a: any) => {
-            let t = d3.now() / 1000;
-            return 200 + Math.cos(a * 8 - i * 2 * Math.PI / 3 + t) * Math.pow((1 + Math.cos(a - t)) / 2, 3) * 32;
-          });
-      });
-
-    d3.timer(() => this.path.attr('d', (d: any) => d(angles)));
-  }
-
-  // -------------------------------------------------------------------
-  // D3 RANDOM CHART
-  // -------------------------------------------------------------------
-  private doSomethingRandom() {
-    let d3 = this.d3;
-    let canvas = document.querySelector('canvas'),
-      context = canvas.getContext('2d'),
-      width = canvas.width,
-      height = canvas.height,
-      color = d3.scaleSequential(d3.interpolateRainbow).domain([0, 1000]),
-      randomX = d3.randomNormal(0.3),
-      randomY = d3.randomNormal(0);
-
-    render();
-
-    canvas.onclick = render;
-
-    function render() {
-      let x0 = width / 20,
-        y0 = height / 2,
-        mainWalk = randomWalk(x0, y0, 1000);
-
-      context.clearRect(0, 0, width, height);
-      context.lineJoin = 'round';
-      context.lineCap = 'round';
-      context.lineWidth = 1.5;
-      context.strokeStyle = 'black';
-      renderWalk(mainWalk);
-
-      context.globalCompositeOperation = 'multiply';
-      context.lineWidth = 1;
-      for (let i = 0; i < mainWalk.length; i += 2) {
-        let branchStart = mainWalk[i],
-          x0 = branchStart[0],
-          y0 = branchStart[1];
-        for (let j = 0; j < 1; ++j) {
-          context.strokeStyle = color(i + (Math.random() - 0.5) * 50);
-          let x1 = x0, y1 = y0;
-          for (let k = 0, m = 20; k < m; ++k) {
-            context.globalAlpha = (m - k - 1) / m;
-            let pieceWalk = randomWalk(x1, y1, 10),
-              pieceEnd = pieceWalk[pieceWalk.length - 1];
-            renderWalk(pieceWalk);
-            x1 = pieceEnd[0];
-            y1 = pieceEnd[1];
-          }
-          context.globalAlpha = 1;
-        }
-      }
-    }
-
-    function renderWalk(walk) {
-      let i, n = walk.length;
-      context.beginPath();
-      context.moveTo(walk[0][0], walk[0][1]);
-      for (i = 1; i < n; ++i) {
-        context.lineTo(walk[i][0], walk[i][1]);
-      }
-      context.stroke();
-    }
-
-    function randomWalk(x0, y0, n) {
-      let points = new Array(n), i;
-      points[0] = [x0, y0];
-      for (i = 1; i < n; ++i) {
-        points[i] = [
-          x0 += randomX() * 2,
-          y0 += randomY() * 2
-        ];
-      }
-      return points;
-    }
-  }
 }
-
