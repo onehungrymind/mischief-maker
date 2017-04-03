@@ -19,7 +19,7 @@ $pink: #d23258;
 $blue: #46a8d7;
 $purple: #814f98;
 
-$primary-color: $pink;
+$primary-color: $blue;
 $secondary-color: $purple;
 
 body {
@@ -49,19 +49,19 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 100%;
   margin: 0;
   padding: 0;
-  color: #d23258;
+  color: $primary-color;
 }
 
 h1 {
-  font-size: 6em;
+  font-size: 10em;
 }
 
 h2 {
-  font-size: 4em;
+  font-size: 8em;
 }
 
 h3 {
-  font-size: 3em;
+  font-size: 6em;
 }
 
 h4 {
@@ -230,3 +230,74 @@ figure:hover div {
   background: linear-gradient($section-degree, $section-first-color, $section-second-color);
 }
 
+
+.view {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.title {
+  font-size: 240px;
+  line-height: 200px;
+  letter-spacing: 2px;
+  font-weight: 800;
+  width: 950px;
+  height: 600px;
+  padding: 50px;
+  transform-origin: 50% 100%;
+  transform: rotateX(45deg) rotateZ(-45deg) rotateY(0deg);
+  animation: rotateMe 12s infinite;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -450px auto auto -100px;
+  color: #449DA7;
+  text-transform: uppercase;
+  text-shadow: -20px 20px #2D7982, -19px 19px #2D7982, -18px 18px #2D7982, -17px 17px #2D7982, -16px 16px #2D7982, -15px 15px #2D7982, -14px 14px #2D7982, -13px 13px #2D7982, -12px 12px #2D7982, -11px 11px #2D7982, -10px 10px #2D7982, -9px 9px #2D7982, -8px 8px #2D7982, -7px 7px #2D7982, -6px 6px #2D7982, -5px 5px #2D7982, -4px 4px #2D7982, -3px 3px #2D7982, -2px 2px #2D7982, -1px 1px #2D7982;
+}
+
+@keyframes rotateMe {
+  0%,
+  100% {
+    transform: rotateX(45deg) rotateZ(-45deg) rotateY(0deg);
+    letter-spacing: 5px;
+  }
+
+  50% {
+    transform: rotateX(45deg) rotateZ(-45deg) rotateY(10deg);
+    letter-spacing: 0px;
+  }
+}
+
+.script {
+  font-size: 12px;
+  padding: 100px;
+  position: absolute;
+  bottom: -100px;
+}
+
+.devices {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.message {
+  border: 5px solid $blue;
+  margin: 5px;
+  -webkit-animation: 2s slide-animation-enter;
+  animation: 1s slide-animation-enter;
+  color: $blue;
+}
+
+@keyframes slide-animation-enter {
+  from {
+    color: $purple;
+    border: 5px solid $purple;
+  }
+  to {
+    color: $blue;
+    border: 5px solid $blue;
+  }
+}

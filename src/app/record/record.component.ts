@@ -85,7 +85,7 @@ export class RecordComponent implements OnInit {
   onEncoded(blob) {
     this.addBlob(blob);
 
-    this.setupDownload(blob, 'myRecording' + ((this.recIndex < 10) ? '0' : '') + this.recIndex + '.wav');
+    this.setupDownload(blob, `myRecording${this.recIndex}.wav`);
     this.recIndex++;
   }
 

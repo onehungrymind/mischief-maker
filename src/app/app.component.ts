@@ -13,6 +13,8 @@ window['Tone'] = require('tone/build/Tone');
 })
 export class AppComponent implements OnInit {
 
+  rehearsal = false;
+
   @Input() public options: MnFullpageOptions = new MnFullpageOptions({
     controlArrows: false,
     scrollingSpeed: 1000,
@@ -22,7 +24,7 @@ export class AppComponent implements OnInit {
     anchors: [
       'intro', 'connect', 'capture', 'convert',
       'play', 'record', 'replay', 'layer',
-      'visualize', 'finale'
+      'visualize', 'review'
     ]
   });
 
