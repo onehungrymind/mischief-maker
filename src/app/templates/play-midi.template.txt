@@ -1,0 +1,15 @@
+private midiMessageReceived(message: any) {
+  let cmd = message.status >> 4;
+  let noteNumber = noteTransforms[message.data[0]];
+  let velocity = 0;
+  if (message.data.length > 1) {
+    velocity = message.data[1] / 120; // needs to be between 0 and 1 and sometimes it is over 100 ¯\_(ツ)_/¯
+  }
+
+  // MIDI noteon with velocity=0 is the same as noteoff
+  if (cmd === 8 || ((cmd === 9) && (velocity === 0))) { // noteoff
+    this.noteOff(noteNumber);
+  } else if (cmd === 9) { // note on
+    this.noteOn(noteNumber, velocity);
+  }
+}

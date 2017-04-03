@@ -1,0 +1,6 @@
+Observable
+  .fromPromise(navigator.requestMIDIAccess())
+  .map((midi: any) => Array.from(midi.inputs)) // convert from iterable
+  .map((devices: any) => devices.map(device => device[1])) // grab just the MIDIInput
+  .subscribe((devices: any) => this.devices = devices)
+;

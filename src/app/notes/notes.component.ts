@@ -21,12 +21,14 @@ const noteTransforms = {
   styleUrls: ['./notes.component.css']
 })
 export class NotesComponent implements OnInit {
-
   currentNote: any = {
     name: 'N/A',
     status: 'N/A',
     pressure: 0
   };
+  noteTransforms = Object.keys(noteTransforms).map((key) => {
+    return {frequency: key, note: noteTransforms[key]};
+  });
 
   constructor(private cd: ChangeDetectorRef) { }
 
@@ -35,13 +37,8 @@ export class NotesComponent implements OnInit {
   }
 
   private initMidiStream() {
-    // TODO: don't hardcode
-    const midiID = 1951271040;
-    // =======================
-
     const midiAccess$ = Observable.fromPromise(navigator.requestMIDIAccess());
     const stateStream$ = midiAccess$.flatMap(access => this.stateChangeAsObservable(access));
-    // const inputStream$ = midiAccess$.map((midi: any) => midi.inputs.get(midiID));
     const inputStream$ = midiAccess$.map((midi: any) => midi.inputs.values().next().value);
 
     const messages$ = inputStream$
@@ -50,10 +47,7 @@ export class NotesComponent implements OnInit {
       .map((message: any) => {
         const status = message.data[0] & 0xf0;
         return {
-          // Collect relevant data from the message
-          // See for example http://www.midi.org/techspecs/midimessages.php
-          // TODO: very naive
-          status: status === 144 ? 'PRESSED' : 'RELEASED',
+          status: status === 144 ? 'PRESSED' : 'RELEASED', // Good until its not ¯\_(ツ)_/¯
           name: noteTransforms[message.data[1]],
           pressure: message.data[2]
         }})
@@ -61,10 +55,21 @@ export class NotesComponent implements OnInit {
 
     stateStream$.subscribe(state => console.log('STATE CHANGE EVENT', state));
 
-    messages$.subscribe(message => {
-      this.currentNote = message; // make immutable
+    messages$.subscribe(note => {
+      this.currentNote = note;
+      this.processNoteTransforms(note);
       this.cd.detectChanges();
     });
+  }
+
+  private processNoteTransforms(note) {
+    this.noteTransforms
+      .forEach(n => {
+        if (n.note === note.name) {
+          n['active'] = note.pressure > 0;
+          n['pressure'] = note.pressure;
+        }
+      });
   }
 
   private stateChangeAsObservable(midi) {
@@ -79,4 +84,7 @@ export class NotesComponent implements OnInit {
     return source.asObservable();
   }
 
+  getAdjustedNoteHeight(note) {
+    return `${50 + note.pressure / 2.5}%`;
+  }
 }

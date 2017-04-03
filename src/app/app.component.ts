@@ -27,21 +27,16 @@ export class AppComponent implements OnInit {
   });
 
   @Output() private templates = {
-    install: require('raw!./templates/install.template.txt'),
-    usage: {
-      slides: {
-        module: require('raw!./templates/usage/slides/slide1/module.template.txt'),
-        html: require('raw!./templates/usage/slides/slide2/html.template.txt')
-      }
-    },
-    configuration: {
-      slides: {
-        attributes: require('raw!./templates/configurartion/slides/slide1/usage.attributes.slide.template.txt'),
-        classOptions: require('raw!./templates/configurartion/slides/slide2/usage.class.options.template.txt'),
-        mix: require('raw!./templates/configurartion/slides/slide3/usage.mix.template.txt')
-      }
-    },
-    service: require('raw!./templates/service.template.txt'),
+    connect: require('raw!./templates/connect.template.txt'),
+    capture: require('raw!./templates/capture.template.txt'),
+    convert: require('raw!./templates/convert.template.txt'),
+    playSynth: require('raw!./templates/play-synth.template.txt'),
+    playMidi: require('raw!./templates/play-midi.template.txt'),
+    record: require('raw!./templates/record.template.txt'),
+    recordProcess: require('raw!./templates/record-process.template.txt'),
+    replay: require('raw!./templates/replay.template.txt'),
+    layer: require('raw!./templates/layer.template.txt'),
+    visualize: require('raw!./templates/visualize.template.txt')
   };
 
   constructor() { }

@@ -1,0 +1,26 @@
+private initMidiStream() {
+  const midiAccess$ = Observable.fromPromise(navigator.requestMIDIAccess());
+  const inputStream$ = midiAccess$.map((midi: any) => midi.inputs.values().next().value);
+
+  const messages$ = inputStream$
+    .filter(input => input !== undefined)
+    .flatMap(input => this.midiMessageAsObservable(input))
+    .map((message: any) => ({
+      status: message.data[0] & 0xf0,
+      data: [
+        message.data[1],
+        message.data[2],
+      ],
+    }))
+    .subscribe(message => {
+      this.messages.unshift(message);
+      this.cd.detectChanges();
+    })
+  ;
+}
+
+private midiMessageAsObservable(input) {
+  const source = new Subject();
+  input.onmidimessage = note => source.next(note);
+  return source.asObservable();
+}

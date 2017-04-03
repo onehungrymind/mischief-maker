@@ -1,0 +1,26 @@
+constructor(
+  private cd: ChangeDetectorRef,
+  private sanitizer: DomSanitizer
+) {
+  this.synth = this.initSynth();
+  this.audioRecorder = new Recorder(this.synth);
+}
+
+toggleRecording() {
+  if (this.isRecording) {
+    // stop recording
+    this.audioRecorder.stop();
+    this.audioRecorder.getBuffers(this.processBuffers.bind(this));
+    this.isRecording = false;
+  } else {
+    // start recording
+    if (!this.audioRecorder) {
+      return;
+    }
+
+    this.isRecording = true;
+    this.audioRecorder.clear();
+    this.audioRecorder.record();
+  }
+}
+

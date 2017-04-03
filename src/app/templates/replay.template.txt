@@ -1,12 +1,3 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
-
-const WaveSurfer = window['WaveSurfer'];
-
-@Component({
-  selector: 'app-track',
-  templateUrl: './track.component.html',
-  styleUrls: ['./track.component.css']
-})
 export class TrackComponent implements OnInit, OnChanges {
   @ViewChild('trackWave') trackWave;
   @Input() blob;

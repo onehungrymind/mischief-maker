@@ -1,0 +1,20 @@
+onBuffersProcessed(buffers) {
+  this.audioRecorder.exportWAV(this.onEncoded.bind(this));
+}
+
+onEncoded(blob) {
+  this.addBlob(blob);
+
+  this.setupDownload(blob, 'myRecording' + ((this.recIndex < 10) ? '0' : '') + this.recIndex + '.wav');
+  this.recIndex++;
+}
+
+setupDownload(blob, filename) {
+  let url = (window.URL).createObjectURL(blob);
+  this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(url);
+  this.downloadFile = filename || 'output.wav';
+}
+
+addBlob(blob) {
+  this.wavesurfer.loadBlob(blob);
+}

@@ -1,5 +1,3 @@
-<h1>{{currentNote}}</h1>
-
 <app-track *ngFor="let blob of blobs" [blob]="blob" [playing]="isPlaying"></app-track>
 
 <div id="controls">
@@ -25,20 +23,4 @@
 			</div>
 		</figure>
 	</a>
-</div>
-
-<!-- CONNECT
-<select name="controller" id="controller" (change)="connectSource($event)">
-  <option value="">Select</option>
-  <option [value]="input.id" *ngFor="let input of midiInputs">{{input.name}}</option>
-</select>
--->
-
-<!-- VISUALIZE -->
-<div class="visualization">
-	<div class="bar"
-		[ngClass]="{active: note.active}"
-		[style.height]="getAdjustedNoteHeight(note)"
-		*ngFor="let note of noteTransforms">
-	</div>
 </div>

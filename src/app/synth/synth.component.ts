@@ -1,5 +1,5 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit } from '@angular/core';
-import { D3, D3Service } from 'd3-ng2-service';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { D3 } from 'd3-ng2-service';
 
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs';
@@ -26,7 +26,9 @@ const Recorder = window['Recorder'];
   styleUrls: ['./synth.component.css']
 })
 export class SynthComponent implements OnInit {
-  midiInputs: Array<any>;
+  @ViewChild('fftElement') fftElement;
+  @ViewChild('waveformElement') waveformElement;
+
   notes: Array<any> = [];
   currentNote;
   noteTransforms = Object.keys(noteTransforms).map((key) => {
@@ -51,20 +53,16 @@ export class SynthComponent implements OnInit {
   // -------------------------------------------------------------------
   noteOn(note, velocity) {
     this.synth.triggerAttack(note, null, velocity);
-    // this.synth.triggerAttack(note);
   }
 
   noteOff(note) {
     this.synth.triggerRelease(note);
-    // this.synth.triggerRelease();
   }
 
   private initMidiInput() {
     const midiAccess$ = Observable.fromPromise(navigator.requestMIDIAccess());
     const stateStream$ = midiAccess$.flatMap(access => this.stateChangeAsObservable(access));
     const inputStream$ = midiAccess$.map((midi: any) => midi.inputs.values().next().value);
-
-    // .do((midi: any) => console.log('INPUTS', Array.from(midi.inputs)))
 
     const messages$ = inputStream$
       .filter(input => input !== undefined)
@@ -83,26 +81,9 @@ export class SynthComponent implements OnInit {
     stateStream$.subscribe(state => console.log('STATE CHANGE EVENT', state));
 
     messages$.subscribe(note => {
-      this.notes = this.notes.concat(note);
-      this.currentNote = noteTransforms[note.data[0]];
-
-      this.processNoteTransforms(note);
       this.midiMessageReceived(note);
       this.cd.detectChanges();
     });
-  }
-
-  private processNoteTransforms(note) {
-    const frequency = note.data[0] + ''; // hack to do strict equality comparison
-    const pressure = note.data[1];
-
-    this.noteTransforms
-      .forEach(n => {
-        if (n.frequency === frequency) {
-          n['active'] = pressure > 0;
-          n['pressure'] = pressure;
-        }
-      });
   }
 
   private midiMessageReceived(message: any) {
@@ -142,7 +123,7 @@ export class SynthComponent implements OnInit {
     this.fft = new Tone.Analyser('fft', 32);
     this.waveform = new Tone.Analyser('waveform', 1024);
 
-    return new Tone.PolySynth(3, Tone.Synth, {
+    return new Tone.PolySynth(6, Tone.Synth, {
         'oscillator': {
           'type': 'fatsawtooth',
           'count': 3,
@@ -168,8 +149,8 @@ export class SynthComponent implements OnInit {
   // TODO Break into components
   private initFFTAnalyzer() {
     let fft = this.fft;
-    let fftElement: any = document.getElementById('fft');
-    let fftContext = fftElement.getContext('2d');
+    let element: any = document.getElementById('fftElement'); // change
+    let fftContext = element.getContext('2d');
     let canvasWidth, canvasHeight;
 
     function drawFFT(values){
@@ -185,8 +166,8 @@ export class SynthComponent implements OnInit {
     }
 
     function resize() {
-      canvasWidth = fftElement.width;
-      canvasHeight = fftElement.height;
+      canvasWidth = element.width;
+      canvasHeight = element.height;
     }
 
     function loop(){
@@ -205,8 +186,8 @@ export class SynthComponent implements OnInit {
 
   initWaveAnalyzer() {
     let waveform = this.waveform;
-    let waveElement: any = document.getElementById('waveform');
-    let waveContext = waveElement.getContext('2d');
+    let element: any = document.getElementById('waveElement'); // change
+    let waveContext = element.getContext('2d');
     let canvasWidth, canvasHeight, waveformGradient;
 
     function drawWaveform(values) {
@@ -228,8 +209,8 @@ export class SynthComponent implements OnInit {
     }
 
     function resize() {
-      canvasWidth = waveElement.width;
-      canvasHeight = waveElement.height;
+      canvasWidth = element.width;
+      canvasHeight = element.height;
 
       waveformGradient = waveContext.createLinearGradient(0, 0, canvasWidth, canvasHeight);
       waveformGradient.addColorStop(0, '#814f98');

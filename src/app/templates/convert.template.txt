@@ -1,0 +1,18 @@
+const noteTransforms = {
+  48: 'C2', 49: 'C#2', 50: 'D2', 51: 'D#2', 52: 'E2', 53: 'F2',
+  54: 'F#2', 55: 'G2', 56: 'G#2', 57: 'A2', 58: 'A#2', 59: 'B2',
+  60: 'C3', 61: 'C#3', 62: 'D3', 63: 'D#3', 64: 'E3', 65: 'F3',
+  66: 'F#3', 67: 'G3', 68: 'G#3', 69: 'A3', 70: 'A#3', 71: 'B3'
+};
+
+const messages$ = inputStream$
+  .filter(input => input !== undefined)
+  .flatMap(input => this.midiMessageAsObservable(input))
+  .map((message: any) => {
+    const status = message.data[0] & 0xf0;
+    return {
+      status: status === 144 ? 'PRESSED' : 'RELEASED', // Good until its not ¯\_(ツ)_/¯
+      name: noteTransforms[message.data[1]],
+      pressure: message.data[2]
+    }})
+;

@@ -1,0 +1,11 @@
+<!-- workspace.component.html -->
+<app-track *ngFor="let blob of blobs" [blob]="blob" [playing]="isPlaying"></app-track>
+
+// workspace.component.js
+addBlob(blob) {
+  this.blobs = this.blobs.concat(blob);
+}
+
+togglePlaying() {
+  this.isPlaying = !this.isPlaying;
+}

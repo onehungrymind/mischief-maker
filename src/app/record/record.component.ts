@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs';
@@ -26,6 +26,7 @@ const WaveSurfer = window['WaveSurfer'];
   styleUrls: ['./record.component.css']
 })
 export class RecordComponent implements OnInit {
+  @ViewChild('trackWave') trackWave;
   notes: Array<any> = [];
   currentNote;
   audioRecorder = null;
@@ -52,7 +53,7 @@ export class RecordComponent implements OnInit {
     this.initMidiInput();
 
     this.wavesurfer = WaveSurfer.create({
-      container: '#recordwave',
+      container: this.trackWave.nativeElement,
       scrollParent: true,
       waveColor: 'violet',
       progressColor: 'purple'
@@ -63,7 +64,7 @@ export class RecordComponent implements OnInit {
     if (this.isRecording) {
       // stop recording
       this.audioRecorder.stop();
-      this.audioRecorder.getBuffers(this.processBuffers.bind(this));
+      this.audioRecorder.getBuffers(this.onBuffersProcessed.bind(this));
       this.isRecording = false;
     } else {
       // start recording
@@ -77,14 +78,13 @@ export class RecordComponent implements OnInit {
     }
   }
 
-  processBuffers(buffers) {
-    // let canvas: any = document.getElementById('record-waveform');
-    // this.drawBuffer(canvas.width, canvas.height, canvas.getContext('2d'), buffers[0]);
-
-    this.audioRecorder.exportWAV(this.encode.bind(this));
+  onBuffersProcessed(buffers) {
+    this.audioRecorder.exportWAV(this.onEncoded.bind(this));
   }
 
-  encode(blob) {
+  onEncoded(blob) {
+    this.addBlob(blob);
+
     this.setupDownload(blob, 'myRecording' + ((this.recIndex < 10) ? '0' : '') + this.recIndex + '.wav');
     this.recIndex++;
   }
@@ -93,30 +93,10 @@ export class RecordComponent implements OnInit {
     let url = (window.URL).createObjectURL(blob);
     this.downloadLink = this.sanitizer.bypassSecurityTrustUrl(url);
     this.downloadFile = filename || 'output.wav';
-
-    // Now that we have a blob... spin up wavesurfer
-    this.wavesurfer.loadBlob(blob);
   }
 
-  drawBuffer(width, height, context, data) {
-    let step = Math.ceil(data.length / width);
-    let amp = height / 2;
-    context.fillStyle = 'silver';
-    context.clearRect(0, 0, width, height);
-    for (let i = 0; i < width; i++) {
-      let min = 1.0;
-      let max = -1.0;
-      for (let j = 0; j < step; j++) {
-        let datum = data[(i * step) + j];
-        if (datum < min) {
-          min = datum;
-        }
-        if (datum > max) {
-          max = datum;
-        }
-      }
-      context.fillRect(i, (1 + min) * amp, 1, Math.max(1, (max - min) * amp));
-    }
+  addBlob(blob) {
+    this.wavesurfer.loadBlob(blob);
   }
 
   // -------------------------------------------------------------------

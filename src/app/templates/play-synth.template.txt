@@ -1,0 +1,21 @@
+private initSynth() {
+  this.fft = new Tone.Analyser('fft', 32);
+  this.waveform = new Tone.Analyser('waveform', 1024);
+
+  return new Tone.PolySynth(6, Tone.Synth, {
+      'oscillator': {
+        'type': 'fatsawtooth',
+        'count': 3,
+        'spread': 30
+      },
+      'envelope': {
+        'attack': 0.01,
+        'decay': 0.1,
+        'sustain': 0.5,
+        'release': 0.4,
+        'attackCurve': 'exponential'
+      },
+    })
+    .fan(this.fft, this.waveform)
+    .toMaster();
+}

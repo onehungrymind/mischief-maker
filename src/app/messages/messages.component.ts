@@ -18,13 +18,8 @@ export class MessagesComponent implements OnInit {
   }
 
   private initMidiStream() {
-    // TODO: don't hardcode
-    const midiID = 1951271040;
-    // =======================
-
     const midiAccess$ = Observable.fromPromise(navigator.requestMIDIAccess());
     const stateStream$ = midiAccess$.flatMap(access => this.stateChangeAsObservable(access));
-    // const inputStream$ = midiAccess$.map((midi: any) => midi.inputs.get(midiID));
     const inputStream$ = midiAccess$.map((midi: any) => midi.inputs.values().next().value);
 
     const messages$ = inputStream$
@@ -44,7 +39,7 @@ export class MessagesComponent implements OnInit {
     stateStream$.subscribe(state => console.log('STATE CHANGE EVENT', state));
 
     messages$.subscribe(message => {
-      this.messages.unshift(message); // make immutable
+      this.messages.unshift(message);
       this.cd.detectChanges();
     });
   }
@@ -60,5 +55,4 @@ export class MessagesComponent implements OnInit {
     input.onmidimessage = note => source.next(note);
     return source.asObservable();
   }
-
 }

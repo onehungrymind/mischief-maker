@@ -1,3 +1,12 @@
 <h4>Name – {{currentNote?.name}}</h4>
 <h4>Status – {{currentNote?.status}}</h4>
 <h4>Pressure – {{currentNote?.pressure}}</h4>
+
+<!-- VISUALIZE -->
+<div class="visualization">
+	<div class="bar"
+		[ngClass]="{active: note.active}"
+		[style.height]="getAdjustedNoteHeight(note)"
+		*ngFor="let note of noteTransforms">
+	</div>
+</div>
