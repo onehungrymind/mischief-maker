@@ -30,7 +30,6 @@ export class SynthComponent implements OnInit {
   @ViewChild('waveformElement') waveformElement;
 
   notes: Array<any> = [];
-  currentNote;
   noteTransforms = Object.keys(noteTransforms).map((key) => {
     return {frequency: key, note: noteTransforms[key]};
   });

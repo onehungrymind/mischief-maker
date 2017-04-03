@@ -13,3 +13,11 @@ private midiMessageReceived(message: any) {
     this.noteOn(noteNumber, velocity);
   }
 }
+
+noteOn(note, velocity) {
+  this.synth.triggerAttack(note, null, velocity);
+}
+
+noteOff(note) {
+  this.synth.triggerRelease(note);
+}
