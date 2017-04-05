@@ -157,7 +157,7 @@ export class SynthComponent implements OnInit {
   }
 
   private initAnalyzer() {
-    this.initFFTAnalyzer();
+    // this.initFFTAnalyzer();
     this.initWaveAnalyzer();
   }
 
@@ -175,7 +175,7 @@ export class SynthComponent implements OnInit {
         let val = values[i] / 255;
         let x = canvasWidth * (i / len);
         let y = val * canvasHeight;
-        fftContext.fillStyle = 'rgba(210, 50, 88, ' + val + ')';
+        fftContext.fillStyle = 'rgba(70, 168, 215, ' + val + ')';
         fftContext.fillRect(x, canvasHeight - y, barWidth, canvasHeight);
       }
     }
@@ -201,7 +201,7 @@ export class SynthComponent implements OnInit {
 
   initWaveAnalyzer() {
     let waveform = this.waveform;
-    let element: any = document.getElementById('waveElement'); // change
+    let element: any = this.waveformElement.nativeElement;
     let waveContext = element.getContext('2d');
     let canvasWidth, canvasHeight, waveformGradient;
 
@@ -209,8 +209,8 @@ export class SynthComponent implements OnInit {
       // draw the waveform
       waveContext.clearRect(0, 0, canvasWidth, canvasHeight);
       waveContext.beginPath();
-      waveContext.lineJoin = 'round';
-      waveContext.lineWidth = 6;
+      waveContext.lineJoin = 'miter';
+      waveContext.lineWidth = 2;
       waveContext.strokeStyle = waveformGradient;
       waveContext.moveTo(0, (values[0] / 255) * canvasHeight);
 

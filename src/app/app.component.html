@@ -10,272 +10,209 @@
 	<div class="section fp-section fp-table">
 		<div class="fp-tableCell view">
 			<h1 class="title">Mischief Maker</h1>
-			<pre class="script" *ngIf="rehearsal">
-				L => Good afternoon everyone! We only have ten minutes so let's get down to bizness.
-				I am amazed with how far JavaScript has come in the last couple years. We can do all sorts of things that were generally only available to native programmers. // say "native" with a yucky inflectio
-				Let's explore some of these modern day javascript phenomenons as we embark upon an Angular Electron magical mystery tour.
-				Since I signed a legally binding contract to be entertaining… I am going to hedge my bets with music.
-				My assistant Roger is going to help me with this demo by pressing keys on this keyboard.
-				// R plays simple note progression like it is a big deal
-				He is not a programmer so let's be patient as he doesn't understand EVERYTHING that is happening.
-				R => Composition over inheritance
-				L => He overhead that at lunch… Using Electron, we can have an out of browser experience…
-			</pre>
 		</div>
 	</div>
-	<!-- CONNECT -->
+	<!-- ENLIGHTEN -->
 	<div class="section fp-section fp-table">
 		<div class="fp-tableCell">
 			<div class="slide view">
-				<h1 class="title">Connect</h1>
-				<pre class="script" *ngIf="rehearsal">
-				In order to have to an other-wordly experience…
-				The first thing we need to do is connect to a higher power i.e. our keyboard
-				</pre>
+				<h1 class="title">Enlighten</h1>
 			</div>
+		</div>
+	</div>
+	<div class="section fp-section fp-table">
+		<div class="fp-tableCell">
 			<div class="slide">
 				<div class="code-block">
           <pre>
-              <code class="javascript">{{templates.connect}}</code>
+	          <code class="javascript">{{templates.connect}}</code>
           </pre>
-					<pre class="script" *ngIf="rehearsal">
-					We get our connected devices by calling requestMIDIAccess and converting our promise into an observable and then mapping our devices to an array and listing them out.
-					</pre>
 				</div>
 			</div>
+		</div>
+	</div>
+	<div class="section fp-section fp-table">
+		<div class="fp-tableCell">
 			<div class="slide">
 				<app-devices></app-devices>
-				<pre class="script" *ngIf="rehearsal">
-				This is why I LOVE observables.
-				R => OBSERVABLE
-				L => #stareDown
-				</pre>
 			</div>
 		</div>
 	</div>
-	<!-- CAPTURE -->
+	<!-- KNOW -->
 	<div class="section fp-section fp-table">
 		<div class="fp-tableCell">
 			<div class="slide view">
-				<h1 class="title">Capture</h1>
-				<pre class="script" *ngIf="rehearsal">
-				Now that we have elevated our consciousness to a higher plane…
-				We can connect to a device and start to capture messages.
-				</pre>
+				<h1 class="title">Know</h1>
 			</div>
+		</div>
+	</div>
+	<div class="section fp-section fp-table">
+		<div class="fp-tableCell">
 			<div class="slide">
 				<div class="code-block">
           <pre>
-              <code class="javascript">{{templates.capture}}</code>
+	          <code class="javascript">{{templates.capture}}</code>
           </pre>
 				</div>
-				<pre class="script" *ngIf="rehearsal">
-				Again RxJS makes this super awesome…
-				Using flatmap, we can capture the onmidimessage event on our midi device and broadcast it down the stream using an observable subject.
-				</pre>
-
 			</div>
+		</div>
+	</div>
+	<div class="section fp-section fp-table">
+		<div class="fp-tableCell">
 			<div class="slide">
 				<app-messages></app-messages>
-				<pre class="script" *ngIf="rehearsal">
-					** DEMO **
-					R => SUBJECT
-					L => You do the keys... I'll do the keywords
-				</pre>
 			</div>
 		</div>
 	</div>
-	<!-- CONVERT -->
+	<!-- UNDERSTAND -->
 	<div class="section fp-section fp-table">
 		<div class="fp-tableCell">
 			<div class="slide view">
-				<h1 class="title">Convert</h1>
-				<pre class="script" *ngIf="rehearsal">
-				And from here we can map our raw messages into something we can use…
-				</pre>
+				<h1 class="title">Understand</h1>
 			</div>
+		</div>
+	</div>
+	<div class="section fp-section fp-table">
+		<div class="fp-tableCell">
 			<div class="slide">
 				<div class="code-block">
           <pre>
-              <code class="javascript">{{templates.convert}}</code>
+	          <code class="javascript">{{templates.convert}}</code>
           </pre>
-					<pre class="script" *ngIf="rehearsal">
-					For instance, what note are we actually playing? How hard did we hit the key? Is the note on or off?
-					R => How can we even know? What is truth?
-					L => observable map is the all seeing eye in this case...
-					</pre>
 				</div>
 			</div>
+		</div>
+	</div>
+	<div class="section fp-section fp-table">
+		<div class="fp-tableCell">
 			<div class="slide">
 				<app-notes></app-notes>
-				<pre class="script" *ngIf="rehearsal">
-					L => Feast your eyes on this sweet visual cornucopia! Go ahead press a key... any key...
-					** DEMO **
-				</pre>
 			</div>
 		</div>
 	</div>
-	<!-- PLAY -->
+	<!-- MANIFEST -->
 	<div class="section fp-section fp-table">
 		<div class="fp-tableCell">
 			<div class="slide view">
-				<h1 class="title">Play</h1>
-				<pre class="script" *ngIf="rehearsal">
-				Now that we are connected, captured and converted…
-				It is time to play something.
-				</pre>
+				<h1 class="title">Manifest</h1>
 			</div>
+		</div>
+	</div>
+	<div class="section fp-section fp-table">
+		<div class="fp-tableCell">
 			<div class="slide">
 				<div class="code-block">
           <pre>
-              <code class="javascript">{{templates.playSynth}}</code>
+	          <code class="javascript">{{templates.playSynth}}</code>
           </pre>
 				</div>
-				<pre class="script" *ngIf="rehearsal">
-				Using the awesome Tone.js library we can create a synthesizer instance and pass our notes directly into it.
-				One… this allows to actually hear something
-				But secondly… we can hook in some pretty cool visualizations
-				</pre>
 			</div>
+		</div>
+	</div>
+	<div class="section fp-section fp-table">
+		<div class="fp-tableCell">
 			<div class="slide">
 				<div class="code-block">
           <pre>
-              <code class="javascript">{{templates.playMidi}}</code>
+	          <code class="javascript">{{templates.playMidi}}</code>
           </pre>
 				</div>
-				<pre class="script" *ngIf="rehearsal">
-				Depending on the message data, we can tell our synth instance to play a note or stop playing a note
-				</pre>
 			</div>
+		</div>
+	</div>
+	<div class="section fp-section fp-table">
+		<div class="fp-tableCell">
 			<div class="slide">
 				<app-synth></app-synth>
-				<pre class="script" *ngIf="rehearsal">
-					Roger... if you would do the honors...
-					** DEMO **
-				This is all well and good but JUST playing music is so temporal…
-				</pre>
 			</div>
 		</div>
 	</div>
-	<!-- RECORD -->
+	<!-- PERCEIVE -->
 	<div class="section fp-section fp-table">
 		<div class="fp-tableCell">
 			<div class="slide view">
-				<h1 class="title">Record</h1>
-				<pre class="script" *ngIf="rehearsal">
-				We need a way to capture what we are playing so that we can enjoy it forever.
-				We are going to introduce a few new helpers…
-				</pre>
+				<h1 class="title">Perceive</h1>
 			</div>
+		</div>
+	</div>
+	<div class="section fp-section fp-table">
+		<div class="fp-tableCell">
 			<div class="slide">
 				<div class="code-block">
           <pre>
-              <code class="javascript">{{templates.record}}</code>
+	          <code class="javascript">{{templates.record}}</code>
           </pre>
 				</div>
-				<pre class="script" *ngIf="rehearsal">
-				The first one is the confusingly named record.js which we will use to… record the data stream coming from our synthesizer
-				</pre>
 			</div>
+		</div>
+	</div>
+	<div class="section fp-section fp-table">
+		<div class="fp-tableCell">
 			<div class="slide">
 				<div class="code-block">
           <pre>
-              <code class="javascript">{{templates.recordProcess}}</code>
+	          <code class="javascript">{{templates.recordProcess}}</code>
           </pre>
 				</div>
-				<pre class="script" *ngIf="rehearsal">
-				Record.js captures the audio buffer and converts it into a wav blob that we can either download OR! Pass into wavesurfer.js to visualize
-				</pre>
 			</div>
+		</div>
+	</div>
+	<div class="section fp-section fp-table">
+		<div class="fp-tableCell">
 			<div class="slide">
 				<app-record></app-record>
-				<pre class="script" *ngIf="rehearsal">
-				** DEMO **
-					Ta dah!
-				They say seeing is believing but hearing is
-				...cool'er
-				</pre>
 			</div>
 		</div>
 	</div>
-	<!-- REPLAY -->
+	<!-- REFLECT -->
 	<div class="section fp-section fp-table">
 		<div class="fp-tableCell">
 			<div class="slide view">
-				<h1 class="title">Replay</h1>
-				<pre class="script" *ngIf="rehearsal">
-				Fortunately... Wavesurfer has our back yet again…
-				Each instance of wavesurfer not only comes with the ability to render an audio waveform but also play the audio as well
-				</pre>
+				<h1 class="title">Reflect</h1>
 			</div>
+		</div>
+	</div>
+	<div class="section fp-section fp-table">
+		<div class="fp-tableCell">
 			<div class="slide">
 				<div class="code-block">
           <pre>
-              <code class="javascript">{{templates.replay}}</code>
+	          <code class="javascript">{{templates.replay}}</code>
           </pre>
 				</div>
-				<pre class="script" *ngIf="rehearsal">
-				We can encapsulate this functionality into a track component that handles the rendering and playing of a single blob file
-				</pre>
 			</div>
+		</div>
+	</div>
+	<div class="section fp-section fp-table">
+		<div class="fp-tableCell">
 			<div class="slide">
 				<app-workspace></app-workspace>
-				<pre class="script" *ngIf="rehearsal">
-				** DEMO **
-					L => And if one track is awesome…
-				More tracks are..
-				R => Additional. You can't argue with the math.
-				</pre>
 			</div>
 		</div>
 	</div>
-	<!-- LAYER -->
+	<!-- EVOLVE -->
 	<div class="section fp-section fp-table">
 		<div class="fp-tableCell">
 			<div class="slide view">
-				<h1 class="title">Layer</h1>
-				<pre class="script" *ngIf="rehearsal">
-				Everytime we hit record… we are creating a new audio blob and pushing it into our blobs array.
-				Because waveform is encapsulated inside a track component, we can attach that to an ngFor and render each track as it becomes available.
-				We can also control the player in each track by binding to a isPlaying property on the parent workspace component.
-				Music is alright and everything but if we are going to commit to this… we need something special
-				</pre>
+				<h1 class="title">Evolve</h1>
 			</div>
+		</div>
+	</div>
+	<div class="section fp-section fp-table">
+		<div class="fp-tableCell">
 			<div class="slide">
 				<div class="code-block">
           <pre>
-              <code class="javascript">{{templates.layer}}</code>
+	          <code class="javascript">{{templates.layer}}</code>
           </pre>
 				</div>
-				<pre class="script" *ngIf="rehearsal">
-				Because waveform is encapsulated inside a track component, we can attach that to an ngFor and render each track as it becomes available.
-				We can also control the player in each track by binding to a isPlaying property on the parent workspace component.
-				</pre>
 			</div>
+		</div>
+	</div>
+	<div class="section fp-section fp-table">
+		<div class="fp-tableCell">
 			<div class="slide">
 				<app-workspace></app-workspace>
-				<pre class="script" *ngIf="rehearsal">
-				** DEMO **
-				Music is alright and everything but if we are going to commit to this… we need something special
-				</pre>
-			</div>
-		</div>
-	</div>
-	<!-- VISUALIZE -->
-	<div class="section fp-section fp-table">
-		<div class="fp-tableCell">
-			<div class="slide view">
-				<h1 class="title">Visualize</h1>
-			</div>
-			<div class="slide">
-				<div class="code-block">
-          <pre>
-              <code class="javascript">{{templates.visualize}}</code>
-          </pre>
-				</div>
-			</div>
-			<div class="slide">
-
 			</div>
 		</div>
 	</div>
@@ -284,6 +221,71 @@
 		<div class="fp-tableCell">
 			<div class="slide view">
 				<h1 class="title">Review</h1>
+			</div>
+			<div class="slide">
+				<div class="lyrics">
+					<strong>First Verse</strong><br>
+					I'm so attracted to what I observe<br>
+					Can't help reacting to the things I've heard<br>
+					I never stress about the state of you<br>
+					Because I'm first to know of anything you do
+				</div>
+			</div>
+			<div class="slide">
+				<div class="lyrics">
+					<strong>Chorus</strong><br>
+					It's all about, Angular<br>
+					Baby you're ahead of the curve<br>
+					You've got all the tools I prefer<br>
+					I'mma let it out, ain't no doubt, all about that, Angular
+				</div>
+			</div>
+			<div class="slide">
+				<div class="lyrics">
+					<strong>Second Verse</strong><br>
+					I love the way you're way ahead of time<br>
+					I say you're classy just to say you're fine<br>
+					You're more than just a CLI to me<br>
+					I think I might just love you universally
+				</div>
+			</div>
+			<div class="slide">
+				<div class="lyrics">
+					<strong>Chorus</strong><br>
+					It's all about, Angular<br>
+					Baby you're ahead of the curve<br>
+					You've got all the tools I prefer<br>
+					I'mma let it out, ain't no doubt, all about that, Angular
+				</div>
+			</div>
+			<div class="slide">
+				<div class="lyrics">
+					<strong>Bridge</strong><br>
+					It's semantics but I know you're mine<br>
+					Our romance is changing all the time<br>
+					So progressive, I can catch you offline<br>
+					Total package, you're one of a kind
+				</div>
+			</div>
+			<div class="slide">
+				<div class="lyrics">
+					<strong class="solos">SOLOS!</strong><br>
+				</div>
+				<app-synth></app-synth>
+			</div>
+			<div class="slide">
+				<div class="lyrics">
+					<strong>Chorus</strong><br>
+					It's all about, Angular<br>
+					Baby you're ahead of the curve<br>
+					You've got all the tools I prefer<br>
+					I'mma let it out, ain't no doubt, all about that, Angular
+				</div>
+			</div>
+			<div class="slide">
+				<div class="lyrics">
+					<strong class="angular">ANGULAR!</strong><br>
+				</div>
 			</div>
 		</div>
 	</div>

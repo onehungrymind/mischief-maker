@@ -15,9 +15,10 @@ $section-first-color: #000;
 $section-second-color: #434343;
 
 $orange: #f2842f;
-$pink: #d23258;
+$pink: #ff8cc3;
 $blue: #46a8d7;
 $purple: #814f98;
+$yellow: #FFFF00;
 
 $primary-color: $blue;
 $secondary-color: $purple;
@@ -25,6 +26,7 @@ $secondary-color: $purple;
 body {
   font-family: 'Titillium Web', Arial sans-serif;
   color: $primary-color;
+
 }
 
 .orange {
@@ -33,6 +35,10 @@ body {
 
 .pink {
   color: #d23258;
+}
+
+.red {
+  color: crimson;
 }
 
 .blue {
@@ -230,7 +236,6 @@ figure:hover div {
   background: linear-gradient($section-degree, $section-first-color, $section-second-color);
 }
 
-
 .view {
   width: 100%;
   height: 100%;
@@ -238,7 +243,7 @@ figure:hover div {
 }
 
 .title {
-  font-size: 240px;
+  font-size: 200px;
   line-height: 200px;
   letter-spacing: 2px;
   font-weight: 800;
@@ -299,5 +304,37 @@ figure:hover div {
   to {
     color: $blue;
     border: 5px solid $blue;
+  }
+}
+
+.lyrics {
+  color: #449DA7;
+  font-size: 4em;
+  font-weight: normal;
+  text-align: center;
+  padding: 0;
+  margin: -120px 0 0;
+
+  strong {
+    color: #434343;
+    font-size: 2em;
+  }
+
+  .solos {
+    color: #449DA7;
+    font-size: 6em;
+  }
+
+  .angular {
+    color: crimson;
+    font-size: 6em;
+  }
+}
+
+.synth {
+  canvas {
+    height: 200px;
+    width: 100%;
+    overflow: hidden;
   }
 }

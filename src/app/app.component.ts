@@ -18,6 +18,7 @@ export class AppComponent implements OnInit {
   @Input() public options: MnFullpageOptions = new MnFullpageOptions({
     controlArrows: false,
     scrollingSpeed: 1000,
+    loopHorizontal: false,
     onLeave: (index: number, nextIndex: number, direction: string) => {
       console.log('NEXT INDEX', nextIndex);
     },
@@ -27,9 +28,15 @@ export class AppComponent implements OnInit {
     menu: '.menu',
     css3: true,
     anchors: [
-      'intro', 'connect', 'capture', 'convert',
-      'play', 'record', 'replay', 'layer',
-      'visualize', 'review'
+      'intro',
+      'enlighten', 'enlighten-code', 'enlighten-demo',
+      'know', 'know-code', 'know-demo',
+      'understand', 'understand-code', 'understand-demo',
+      'manifest', 'manifest-code', 'manifest-more-code', 'manifest-demo',
+      'perceive', 'perceive-code', 'perceive-more-code', 'perceive-demo',
+      'reflect', 'reflect-code', 'reflect-demo',
+      'evolve', 'evolve-code', 'evolve-demo',
+      'review'
     ]
   });
 
@@ -42,8 +49,7 @@ export class AppComponent implements OnInit {
     record: require('raw!./templates/record.template.txt'),
     recordProcess: require('raw!./templates/record-process.template.txt'),
     replay: require('raw!./templates/replay.template.txt'),
-    layer: require('raw!./templates/layer.template.txt'),
-    visualize: require('raw!./templates/visualize.template.txt')
+    layer: require('raw!./templates/layer.template.txt')
   };
 
   constructor() { }
