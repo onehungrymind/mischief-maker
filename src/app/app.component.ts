@@ -28,8 +28,15 @@ export class AppComponent implements OnInit {
     menu: '.menu',
     css3: true,
     anchors: [
-      'intro', 'enlighten', 'know', 'understand',
-      'manifest', 'perceive', 'reflect', 'evolve', 'review'
+      'intro',
+      'enlighten', 'enlighten-code', 'enlighten-demo',
+      'know', 'know-code', 'know-demo',
+      'understand', 'understand-code', 'understand-demo',
+      'manifest', 'manifest-code', 'manifest-more-code', 'manifest-demo',
+      'perceive', 'perceive-code', 'perceive-more-code', 'perceive-demo',
+      'reflect', 'reflect-code', 'reflect-demo',
+      'evolve', 'evolve-code', 'evolve-demo',
+      'review'
     ]
   });
 
