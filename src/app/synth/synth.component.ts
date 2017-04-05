@@ -97,8 +97,8 @@ export class SynthComponent implements OnInit {
       .flatMap(x => Observable.from(x));
 
     // Use these two lines to toggle data source from real midi to RxJS and back
-    const messages$ = localInputStream$;
     // const messages$ = localInputStream$;
+    const messages$ = remoteInputStream$;
 
     stateStream$.subscribe(state => console.log('STATE CHANGE EVENT', state));
 
