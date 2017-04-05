@@ -81,21 +81,24 @@ export class SynthComponent implements OnInit {
       ));
 
     const remoteInputStream$ = this.af.database.object('/average_audio_data')
-      // .scan((acc, current) => {
-      //   if (!acc) {
-      //     acc = current;
-      //   }
-      //
-      //   console.log('ACCUMULATOR', acc);
-      //   console.log('CURRENT', current);
-      //   return acc;
-      // })
-      .map((message: any) => ({
-        status: 144 & 0xf0,
-        data: [ Math.floor(message.$value), 50 ]
-      }));
+      .pairwise()
+      .map((message: any) => {
+        return [
+          {
+            status: 128 & 0xf0,
+            data: [ Math.floor(message[0].$value), 0 ]
+          },
+          {
+            status: 144 & 0xf0,
+            data: [ Math.floor(message[1].$value), 50 ]
+          }
+        ];
+      })
+      .flatMap(x => Observable.from(x));
 
-    const messages$ = remoteInputStream$;
+    // Use these two lines to toggle data source from real midi to RxJS and back
+    const messages$ = localInputStream$;
+    // const messages$ = localInputStream$;
 
     stateStream$.subscribe(state => console.log('STATE CHANGE EVENT', state));
 
