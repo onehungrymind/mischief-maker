@@ -26,7 +26,7 @@ $secondary-color: $purple;
 body {
   font-family: 'Titillium Web', Arial sans-serif;
   color: $primary-color;
-  background: linear-gradient($section-degree, $section-first-color, $section-second-color);
+
 }
 
 .orange {
@@ -135,7 +135,7 @@ h4 {
 .section pre code {
   background: $section-code-background !important;
   font-weight: normal;
-  font-size: 1.4em;
+  font-size: 1.2em;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, .2), 0 6px 20px 0 rgba(0, 0, 0, .19);
   padding: 25px;
 }
@@ -232,7 +232,6 @@ figure:hover div {
   background: linear-gradient($section-degree, $section-first-color, $section-second-color);
 }
 
-
 .view {
   width: 100%;
   height: 100%;
@@ -240,7 +239,7 @@ figure:hover div {
 }
 
 .title {
-  font-size: 240px;
+  font-size: 200px;
   line-height: 200px;
   letter-spacing: 2px;
   font-weight: 800;

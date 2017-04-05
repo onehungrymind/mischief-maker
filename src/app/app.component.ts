@@ -28,8 +28,8 @@ export class AppComponent implements OnInit {
     menu: '.menu',
     css3: true,
     anchors: [
-      'intro', 'connect', 'capture', 'convert',
-      'play', 'record', 'replay', 'layer', 'review'
+      'intro', 'enlighten', 'know', 'understand',
+      'manifest', 'perceive', 'reflect', 'evolve', 'review'
     ]
   });
 
