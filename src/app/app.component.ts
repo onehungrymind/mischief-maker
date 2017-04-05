@@ -18,7 +18,12 @@ export class AppComponent implements OnInit {
   @Input() public options: MnFullpageOptions = new MnFullpageOptions({
     controlArrows: false,
     scrollingSpeed: 1000,
-
+    onLeave: (index: number, nextIndex: number, direction: string) => {
+      console.log('NEXT INDEX', nextIndex);
+    },
+    onSlideLeave: (anchorLink: string, index: number, slideIndex: number, direction: string, nextSlideIndex: number) => {
+      console.log('NEXT SLIDE INDEX', index, nextSlideIndex);
+    },
     menu: '.menu',
     css3: true,
     anchors: [
