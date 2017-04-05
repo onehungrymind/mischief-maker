@@ -185,7 +185,7 @@ export class SynthComponent implements OnInit {
 
   initWaveAnalyzer() {
     let waveform = this.waveform;
-    let element: any = document.getElementById('waveElement'); // change
+    let element: any = this.waveformElement.nativeElement;
     let waveContext = element.getContext('2d');
     let canvasWidth, canvasHeight, waveformGradient;
 
