@@ -6,6 +6,8 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
+import { AngularFireModule } from 'angularfire2';
+
 import { D3Service } from 'd3-ng2-service';
 
 import { AppComponent } from './app.component';
@@ -18,6 +20,15 @@ import { NotesComponent } from './notes/notes.component';
 import { SynthComponent } from './synth/synth.component';
 import { RecordComponent } from './record/record.component';
 import { WorkspaceComponent } from './workspace/workspace.component';
+
+export const firebaseConfig = {
+  apiKey: "AIzaSyBQP1n1psPzLlK8QUTX2of9AbDi8CshVsM",
+  authDomain: "mischief-maker-data-aggregator.firebaseapp.com",
+  databaseURL: "https://mischief-maker-data-aggregator.firebaseio.com",
+  projectId: "mischief-maker-data-aggregator",
+  storageBucket: "mischief-maker-data-aggregator.appspot.com",
+  messagingSenderId: "592007581287"
+};
 
 @NgModule({
   declarations: [
@@ -34,7 +45,8 @@ import { WorkspaceComponent } from './workspace/workspace.component';
   imports: [
     BrowserModule,
     FormsModule,
-    HttpModule
+    HttpModule,
+    AngularFireModule.initializeApp(firebaseConfig)
   ],
   providers: [
     D3Service,

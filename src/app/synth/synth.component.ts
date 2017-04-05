@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { D3 } from 'd3-ng2-service';
+import { AngularFire } from 'angularfire2';
 
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs';
@@ -38,7 +39,10 @@ export class SynthComponent implements OnInit {
   fft = null;
   waveform = null;
 
-  constructor(private cd: ChangeDetectorRef) {
+  constructor(
+    private cd: ChangeDetectorRef,
+    private af: AngularFire
+  ) {
     this.synth = this.initSynth();
   }
 
@@ -61,20 +65,32 @@ export class SynthComponent implements OnInit {
   private initMidiInput() {
     const midiAccess$ = Observable.fromPromise(navigator.requestMIDIAccess());
     const stateStream$ = midiAccess$.flatMap(access => this.stateChangeAsObservable(access));
-    const inputStream$ = midiAccess$.map((midi: any) => midi.inputs.values().next().value);
 
-    const messages$ = inputStream$
+    const localInputStream$ = midiAccess$.map((midi: any) => midi.inputs.values().next().value)
       .filter(input => input !== undefined)
-      .flatMap(input => this.midiMessageAsObservable(input))
-      .map((message: any) => ({
-        // Collect relevant data from the message
-        // See for example http://www.midi.org/techspecs/midimessages.php
-        status: message.data[0] & 0xf0,
-        data: [
-          message.data[1],
-          message.data[2],
-        ],
-      }))
+      .flatMap(input => this.midiMessageAsObservable(input));
+
+    const remoteInputStream$ = this.af.database.object('/average_audio_data');
+
+    const messages$ = localInputStream$
+      .map((message: any) => {
+        if (message.$value) {
+          return {
+            status: 144 & 0xf0,
+            data: [ Math.floor(message.$value), 50 ]
+          }
+        } else {
+          return {
+            // Collect relevant data from the message
+            // See for example http://www.midi.org/techspecs/midimessages.php
+            status: message.data[0] & 0xf0,
+            data: [
+              message.data[1],
+              message.data[2],
+            ],
+          }
+        }
+      })
     ;
 
     stateStream$.subscribe(state => console.log('STATE CHANGE EVENT', state));
