@@ -15,9 +15,10 @@ $section-first-color: #000;
 $section-second-color: #434343;
 
 $orange: #f2842f;
-$pink: #d23258;
+$pink: #ff8cc3;
 $blue: #46a8d7;
 $purple: #814f98;
+$yellow: #FFFF00;
 
 $primary-color: $blue;
 $secondary-color: $purple;
@@ -25,6 +26,7 @@ $secondary-color: $purple;
 body {
   font-family: 'Titillium Web', Arial sans-serif;
   color: $primary-color;
+  background: linear-gradient($section-degree, $section-first-color, $section-second-color);
 }
 
 .orange {
@@ -133,7 +135,7 @@ h4 {
 .section pre code {
   background: $section-code-background !important;
   font-weight: normal;
-  font-size: 1.2em;
+  font-size: 1.4em;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, .2), 0 6px 20px 0 rgba(0, 0, 0, .19);
   padding: 25px;
 }
@@ -299,5 +301,32 @@ figure:hover div {
   to {
     color: $blue;
     border: 5px solid $blue;
+  }
+}
+
+.lyrics {
+  color: #449DA7;
+  font-size: 4em;
+  font-weight: normal;
+  text-align: center;
+  padding: 0;
+  margin: -120px 0 0;
+
+  strong {
+    color: #434343;
+    font-size: 2em;
+  }
+
+  .solos {
+    color: #449DA7;
+    font-size: 6em;
+  }
+}
+
+.synth {
+  canvas {
+    height: 200px;
+    width: 100%;
+    overflow: hidden;
   }
 }
