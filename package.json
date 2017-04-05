@@ -11,7 +11,8 @@
     "pree2e": "webdriver-manager update --standalone false --gecko false",
     "e2e": "protractor",
     "build-electron": "ng build && cp src/electron/* dist/",
-    "electron": "npm run build-electron && electron dist/"
+    "electron": "npm run build-electron && electron dist/",
+    "release": "npm run build-electron && electron-packager dist/ MischiefMaker --platform=darwin --arch=x64 --out=releases/ --overwrite --icon=src/assets/images/maker"
   },
   "private": true,
   "dependencies": {
@@ -42,6 +43,8 @@
     "angular-cli": "1.0.0-beta.24",
     "codelyzer": "~2.0.0-beta.1",
     "d3": "^4.7.4",
+    "electron-builder": "16.6.1",
+    "electron-prebuilt": "1.4.13",
     "jasmine-core": "2.5.2",
     "jasmine-spec-reporter": "2.5.0",
     "karma": "1.2.0",
